@@ -6,9 +6,9 @@ project(lifecycle)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
         COMPONENTS
-        roscpp 
-        rostest 
-        rosunit 
+        roscpp
+        rostest
+        rosunit
         actionlib
         lifecycle_msgs
 )
@@ -125,8 +125,8 @@ add_library(lifecycle
    src/${PROJECT_NAME}/manager.cpp
    src/${PROJECT_NAME}/managed_node.cpp
    src/${PROJECT_NAME}/lifecycle_model.cpp
-   src/${PROJECT_NAME}/broadcaster.cpp 
-   src/${PROJECT_NAME}/client.cpp 
+   src/${PROJECT_NAME}/broadcaster.cpp
+   src/${PROJECT_NAME}/client.cpp
 )
 
 ## Add cmake target dependencies of the library

@@ -10,21 +10,21 @@ class LmMonitor(object):
     """
     :class:`LmMonitor` collects the "/lm_monitor" and stores them in a dictionary for further use
     """
-    
+
     def __init__(self):
         super(LmMonitor,self).__init__()
         self.LmEventsBuffer = {}
-       
+
     def setLmEvent(self, lm_monitor_msg, time_stamp):
         """
         :param lm_monitor_msg: the lm_monitor message with node_name and lifecycle_event
         """
         lmevent_dict = self.lifecycleMsg2Dict(time_stamp, lm_monitor_msg.lifecycle_event)
         try:
-            self.LmEventsBuffer[lm_monitor_msg.node_name] = lmevent_dict 
+            self.LmEventsBuffer[lm_monitor_msg.node_name] = lmevent_dict
         except KeyError:
             self.LmEventsBuffer[lm_monitor_msg.node_name] = lmevent_dict #first message from this node
-        
+
     def lifecycleMsg2Dict(self, time_stamp, lifecycle_msg):
         """
         :brief: Packs the lifecycle message into dictionary in the format:
@@ -40,8 +40,8 @@ class LmMonitor(object):
 
         return dict
 
-        
-        
+
+
 if __name__ == '__main__':
     rospy.init_node('Lifecycle Monitor')
-    
+

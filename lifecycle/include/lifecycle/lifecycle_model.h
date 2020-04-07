@@ -32,8 +32,8 @@
 #define LIFECYCLE_ACTION_NAME "lifecycle"
 #define LIFECYCLE_STATE_TOPIC "lifecycle_state"
 
-namespace ros { namespace lifecycle {    
-        
+namespace ros { namespace lifecycle {
+
         enum State {
             // Primary States
             UNCONFIGURED    = lifecycle_msgs::LifecycleGoal::PSTATE_UNCONFIGURED,
@@ -60,7 +60,7 @@ namespace ros { namespace lifecycle {
             SUCCESS = lifecycle_msgs::LifecycleGoal::EV_SUCCESS,
             FAILURE = lifecycle_msgs::LifecycleGoal::EV_FAILURE
         };
-        
+
         typedef boost::function<bool (void)> transitionCb;
         typedef boost::function<bool (const std::exception&)> errorCb;
         typedef boost::function<void (bool)> completionCb;
@@ -74,7 +74,7 @@ namespace ros { namespace lifecycle {
         typedef std::map<Eventsinput, TransitionList> Events;
         typedef ros::Subscriber LifecycleSubscriber;
         typedef actionlib::SimpleActionClient<lifecycle_msgs::LifecycleAction> LifecycleActionClient;
-        
+
         class LifecycleModel {
         public:
             /****************************************************************
@@ -82,7 +82,7 @@ namespace ros { namespace lifecycle {
             * UNCONFIGURED or INACTIVE or ACTIVE or FINALIZED
             ****************************************************************/
             static bool isPrimaryState(State state);
-            
+
         };
     }}
 

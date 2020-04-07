@@ -11,11 +11,11 @@ from lifecycle.broadcaster import LmEventBroadcaster
 
 LIFECYCLE_ACTION_NAME = "lifecycle"
 LIFECYCLE_STATE_TOPIC = "lifecycle_state"
-    
+
 class IllegalTransitionException(Exception):
     def __init__(self, arg):
         self.msg = 'IllegalTransitionException current state =' + str(arg[0]) + ', transition requested =' +str(arg[1])
-        
+
 class LifecycleCbException(Exception):
     """
     Thrown on invalid callback function
@@ -44,7 +44,7 @@ class LifecycleManager(object):
         self._as = actionlib.SimpleActionServer(component_fqn + "/" + LIFECYCLE_ACTION_NAME, LifecycleAction, self._goal_cb, False)
         self.state_pub_ = rospy.Publisher(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, queue_size = 10, latch=True)
         self.lm_broadcaster = LmEventBroadcaster(component_fqn);
-        
+
     def __del__(self):
         self._as.__del__()
 
@@ -57,13 +57,13 @@ class LifecycleManager(object):
         :type transition: Transition
         :param result_code: the result of the transition
         :type result_code: Result_Code
-        :return: 
+        :return:
         """
         msg = Lifecycle()
         msg.transition = transition
         msg.end_state = self._current
         msg.result_code = result_code
-        
+
         self.state_pub_.publish(msg)
         self.lm_broadcaster.sendLmEvent(msg)
 
@@ -78,7 +78,7 @@ class LifecycleManager(object):
     def set_transition_callback(self, tr, cb):
         """
         Sets the callback functions of the respective transition
-        :param tr : transition 
+        :param tr : transition
         :type tr: Transition
         :param cb : callback function
         :type cb : function
@@ -126,12 +126,12 @@ class LifecycleManager(object):
                 self._handle_secondary_step((self._current, Result_Code.SUCCESS))
             else:
                 self._handle_secondary_step((self._current, Result_Code.FAILURE))
-                
+
         if(result_var != False):
             self._publish_transition(transition, Result_Code.SUCCESS)
         else :
             self._publish_transition(transition, Result_Code.FAILURE)
-            
+
         return result_var
 
     def _handle_primary_step(self, input_var):
@@ -155,7 +155,7 @@ class LifecycleManager(object):
                 return True
         except KeyError:
             raise IllegalTransitionException(input_var)
-            
+
     def _handle_secondary_step(self, input_var):
         """
         Handles the second step of the transition i.e. from a transitional state to a primary state.
@@ -186,7 +186,7 @@ class LifecycleManager(object):
         if cb is None or not check_args(cb, Exception):
             raise LifecycleCbException("The error callback %s must be callable with one argument" %cb)
         self.onError_ = cb
-    
+
     def _isPrimaryState(self, state):
         """
         checks if the given state is Primary
@@ -195,7 +195,7 @@ class LifecycleManager(object):
         :return : bool value to indicate if the given state is primary state
         """
         return((state == State.UNCONFIGURED) or (state == State.INACTIVE) or (state == State.ACTIVE) or (state == State.FINALIZED))
-        
+
     def raise_error(self, ex):
         """
         Handles the error raised during any state of the node
@@ -208,7 +208,7 @@ class LifecycleManager(object):
             return self._handle_transition(Transition.ERROR)
         else:
             return self._handle_error_processing(ex)
-    
+
     def configure(self):
         return self._handle_transition(Transition.CONFIGURE)
 

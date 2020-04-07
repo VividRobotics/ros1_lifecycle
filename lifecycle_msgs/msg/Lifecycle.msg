@@ -29,4 +29,4 @@ int8 transition
 int8 end_state
 
 # The result code from the transition state
-int8 result_code 
+int8 result_code

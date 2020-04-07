@@ -50,28 +50,28 @@ int main(int argc, char* argv[])
     ros::NodeHandle nh("~");
     std::string node_name = "";
     nh.param(NODE_NAME, node_name, node_name);
-    
+
     boost::thread spin_thread(&spinThread);
-    
+
     LifecycleClient lm_client(nh, node_name);
-    
+
     try {
         TRANSITION = "UNCONFIGURED";
         lm_client.goToState(UNCONFIGURED, cb_func);
         ros::Duration(2.0).sleep();
-        
+
         TRANSITION = "INACTIVE";
         lm_client.goToState(INACTIVE, cb_func);
         ros::Duration(2.0).sleep();
-        
+
         TRANSITION = "ACTIVE";
         lm_client.goToState(ACTIVE, cb_func);
         ros::Duration(2.0).sleep();
-        
+
         TRANSITION = "UNCONFIGURED";
         lm_client.goToState(UNCONFIGURED, cb_func);
         ros::Duration(2.0).sleep();
-        
+
         TRANSITION = "FINALIZED";
         lm_client.goToState(FINALIZED, cb_func);
         ros::Duration(2.0).sleep();

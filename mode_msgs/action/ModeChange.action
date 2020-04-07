@@ -12,5 +12,5 @@ string start_mode
 string current_mode
 # where we want to end up
 string target_mode
-# a variable that is counted up from 1 every time a feedback message is sent 
+# a variable that is counted up from 1 every time a feedback message is sent
 int32 progress

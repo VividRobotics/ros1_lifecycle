@@ -19,7 +19,7 @@ add_service_files(
 
 ## Generate actions in the 'action' folder
 add_action_files(
-  FILES 
+  FILES
   ModeChange.action
 #   Action2.action
 )

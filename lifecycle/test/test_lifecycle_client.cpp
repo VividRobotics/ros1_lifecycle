@@ -45,7 +45,7 @@ class LmNode: public ManagedNode
 {
     public:
         LmNode(const ros::NodeHandle& nh): ManagedNode(nh) { };
-    
+
     protected:
         bool onActivate() { return true;};
         bool onCleanup() { return true; };
@@ -68,9 +68,9 @@ TEST(Lifecycle_Client, test_apiexception)
 {
     INIT
     boost::thread spin_thread(&spinThread);
-    
+
     LifecycleClient lm_client(nh, LIFECYCLE_SERVER);
-    
+
     Result = false;
     Executed = false;
     EXPECT_THROW(lm_client.goToState(UNCONFIGURED, cb_func), LifecycleAPIException);
@@ -84,10 +84,10 @@ TEST(Lifecycle_Client, test_unconfigured)
 {
     INIT
     boost::thread spin_thread(&spinThread);
-    LmNode test_node(nh);    
-    
+    LmNode test_node(nh);
+
     LifecycleClient lm_client(nh, LIFECYCLE_SERVER);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(UNCONFIGURED, cb_func);
@@ -99,22 +99,22 @@ TEST(Lifecycle_Client, test_unconfigured)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 TEST(Lifecycle_Client, test_inactive)
 {
     INIT
     boost::thread spin_thread(&spinThread);
-    LmNode test_node(nh);    
-    
+    LmNode test_node(nh);
+
     LifecycleClient lm_client(nh, LIFECYCLE_SERVER);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(INACTIVE, cb_func);
     ros::Duration(SLEEP_TIME).sleep();
     ASSERT_TRUE(Executed);
     ASSERT_TRUE(Result);
-    
+
     //Attempt 2nd time
     Result = false;
     Executed = false;
@@ -122,7 +122,7 @@ TEST(Lifecycle_Client, test_inactive)
     ros::Duration(SLEEP_TIME).sleep();
     ASSERT_TRUE(Executed);
     ASSERT_TRUE(Result);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(INACTIVE, cb_func);
@@ -134,22 +134,22 @@ TEST(Lifecycle_Client, test_inactive)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 TEST(Lifecycle_Client, test_active)
 {
     INIT
     boost::thread spin_thread(&spinThread);
-    LmNode test_node(nh);    
-    
+    LmNode test_node(nh);
+
     LifecycleClient lm_client(nh, LIFECYCLE_SERVER);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(ACTIVE, cb_func);
     ros::Duration(SLEEP_TIME).sleep();
     ASSERT_TRUE(Executed);
     ASSERT_TRUE(Result);
-    
+
     //Check from inactive to active
     Result = false;
     Executed = false;
@@ -157,7 +157,7 @@ TEST(Lifecycle_Client, test_active)
     ros::Duration(SLEEP_TIME).sleep();
     ASSERT_TRUE(Executed);
     ASSERT_TRUE(Result);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(ACTIVE, cb_func);
@@ -169,15 +169,15 @@ TEST(Lifecycle_Client, test_active)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 TEST(Lifecycle_Client, test_finalized)
 {
     INIT
     boost::thread spin_thread(&spinThread);
-    LmNode test_node(nh);    
-    
+    LmNode test_node(nh);
+
     LifecycleClient lm_client(nh, LIFECYCLE_SERVER);
-    
+
     Result = false;
     Executed = false;
     lm_client.goToState(FINALIZED, cb_func);
@@ -189,7 +189,7 @@ TEST(Lifecycle_Client, test_finalized)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 int main(int argc, char** argv)
 {
     testing::InitGoogleTest(&argc, argv);

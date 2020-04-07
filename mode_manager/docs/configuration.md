@@ -44,7 +44,7 @@ This dictionary must specify the modes for *all* components known to the mode ma
 
 #### inherits (optional): Specifies a mode whose component_configuration will be copied into this one
 
-So, in the example above, the mode "F1" inherits the mode "launched", and then overwrites the configuration for the "param" component. 
+So, in the example above, the mode "F1" inherits the mode "launched", and then overwrites the configuration for the "param" component.
 
 When there is only one component, this doesn't give you a lot, but when there are many components, and modes modify only one or a few of them, it saves you from having to configure all of them for every mode.
 
@@ -60,7 +60,7 @@ There are two mandatory sub-elements
 
 #### configs
 
-The dictionary of configurations for this component. The only mandatory element is "type". Depending on type, other elements may also be mandatory. 
+The dictionary of configurations for this component. The only mandatory element is "type". Depending on type, other elements may also be mandatory.
 
 ##### Type roslaunch
 

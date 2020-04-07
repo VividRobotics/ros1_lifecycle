@@ -43,14 +43,14 @@ const char* LifecycleAPIException::what() const throw() {
     return message.c_str();
 }
 
-LifecycleTransitionSequence::LifecycleTransitionSequence(boost::shared_ptr<LifecycleActionClient> client, 
+LifecycleTransitionSequence::LifecycleTransitionSequence(boost::shared_ptr<LifecycleActionClient> client,
         TransitionList transitions, completionCb completion_cb){
     client_         = client;
     transitions_    = transitions;
     sequencer_busy_ = false;
     cancelled_      = false;
     completion_cb_  = completion_cb;
-    
+
 }
 
 void LifecycleTransitionSequence::go(void){
@@ -88,7 +88,7 @@ void LifecycleTransitionSequence::step_(void){
     }
 }
 
-void LifecycleTransitionSequence::transitionCb_(const actionlib::SimpleClientGoalState& state, 
+void LifecycleTransitionSequence::transitionCb_(const actionlib::SimpleClientGoalState& state,
         const lifecycle_msgs::LifecycleResultConstPtr& result){
     //if we completed the current transition, invoke next
     //TODO Check for errors
@@ -103,7 +103,7 @@ void LifecycleTransitionSequence::transitionCb_(const actionlib::SimpleClientGoa
         }else{
             //on other conditions (like RECALLED, REJECTED, PREEMPTED or LOST) we try again with the same transition
         }
-        
+
         step_();
     }
 }
@@ -121,38 +121,38 @@ LifecycleClient::LifecycleClient(ros::NodeHandle& nh, std::string node_name):nh_
     events_[make_pair(ACTIVE, UNCONFIGURED)].push_back(DEACTIVATE);
     events_[make_pair(ACTIVE, UNCONFIGURED)].push_back(CLEANUP);
     events_[make_pair(ACTIVE, FINALIZED)].push_back(SHUTDOWN);
-    
+
     action_client_  = boost::make_shared<LifecycleActionClient>(node_name + "/" + LIFECYCLE_ACTION_NAME);
     server_state_   = UNCONFIGURED;
     handle_.reset();
-    
+
     state_sub_ = nh_.subscribe("/" + node_name + "/" + LIFECYCLE_STATE_TOPIC, 10, &LifecycleClient::stateCb, this);
 }
 
 void LifecycleClient::goToState(State target_state, completionCb completion_cb){
     completion_cb_ = completion_cb;
-    
+
     //check if the node's actionlib server is up, else raise an exception after timeout
     if(!action_client_->waitForServer(ros::Duration(6.0))){
         std::string message = node_name_ + " Node Not Found";
         throw LifecycleAPIException(message.c_str());
     }
-    
+
     // if we're already in the target state, do nothing
     if (target_state == server_state_){
         completion_cb(true);
         return;
     }
-    
+
     // cancel current sequence if there is one, i.e the object was not reset()
     if (handle_){
         cancel();
     }
-    
+
     // start the sequence of events/transitions to get to the target state
     TransitionList events = events_[make_pair(server_state_, target_state)];
     if (!events.empty()){
-        handle_ = boost::make_shared<LifecycleTransitionSequence>(action_client_, events, 
+        handle_ = boost::make_shared<LifecycleTransitionSequence>(action_client_, events,
             boost::bind(&LifecycleClient::transition_completion_cb_, this, _1));
         handle_->go();
     }
@@ -169,7 +169,7 @@ void LifecycleClient::stateCb(const lifecycle_msgs::Lifecycle& msg){
 }
 
 void LifecycleClient::transition_completion_cb_(bool result){
-    handle_.reset(); 
+    handle_.reset();
     completion_cb_(result);
 }
 

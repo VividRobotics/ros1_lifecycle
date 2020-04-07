@@ -142,7 +142,7 @@ class LifecycleClient(object):
         :return:
         """
         self.completion_cb_ = completion_cb
-        
+
         # if we're already in the target state, do nothing
         if target_state == self._server_state:
             completion_cb(True)
@@ -171,7 +171,7 @@ class LifecycleClient(object):
         :return:
         """
         self._server_state = msg.end_state
-    
+
     def _transition_completion_cb(self, result):
         self._handle = None
         self.completion_cb_(result)

@@ -48,14 +48,14 @@ namespace ros { namespace lifecycle {
         class LifecycleManager {
         public:
             /******************************************************************
-            *Description: Constructor for the LifecycleManager class. 
+            *Description: Constructor for the LifecycleManager class.
             *Initialises the values of primary_steps_ and secondary_steps_
             *with valid transitions. Defines a action server and a publisher.
             ******************************************************************/
             LifecycleManager(const ros::NodeHandle& nh);
-            
+
             /******************************************************************
-            *Description: Constructor for the LifecycleManager class. 
+            *Description: Constructor for the LifecycleManager class.
             *Initialises the values of primary_steps_ and secondary_steps_
             *with valid transitions. Defines a action server and a publisher.
             ******************************************************************/
@@ -67,43 +67,43 @@ namespace ros { namespace lifecycle {
             void start();
 
             /*************************************************************
-            * Description: sets the callback functions of the respective 
+            * Description: sets the callback functions of the respective
             * transition
             *************************************************************/
             void setTransitionCallback(Transition, transitionCb);
-            
+
             /*************************************************************
-            * Description: A error callback function for the Lifecycle 
-            * manager node which handles the errors 
+            * Description: A error callback function for the Lifecycle
+            * manager node which handles the errors
             *************************************************************/
             void setErrorCb(errorCb);
-            
+
             /*************************************************************
             * Description: An api to raise error so that lifecycle managed
             * node transitions to the errorProcessing state
             *************************************************************/
             bool raiseError(const std::exception&);
-            
+
             /*************************************************************
             * Description: "Configure" Transition is initiated
             *************************************************************/
             bool configure();
-            
+
             /*************************************************************
             * Description: "Activate" Transition is initiated
             *************************************************************/
             bool activate();
-            
+
             /*************************************************************
             * Description: "Deactivate" Transition is initiated
             *************************************************************/
             bool deactivate();
-            
+
             /*************************************************************
             * Description: "Shutdown" Transition is initiated
             *************************************************************/
             bool shutdown();
-            
+
             /*************************************************************
             * Description: "Cleanup" Transition is initiated
             *************************************************************/
@@ -113,7 +113,7 @@ namespace ros { namespace lifecycle {
             * Description: Gets the current state of the LM node
             *************************************************************/
             State getCurrentState() { return current_; };
-            
+
         protected:
 
             /*************************************************************
@@ -121,17 +121,17 @@ namespace ros { namespace lifecycle {
             * updates the result of the action
             *************************************************************/
             void goalCb();
-            
+
             /*************************************************************
             * Description: Handles the transition of node from one primary
             * state to another primary state
             *************************************************************/
             bool handleTransition(const Transition& transition);
-            
+
             /*************************************************************
-            * Description: Publishes the Lifecycle events. Whenever the 
-            * state of the node changes, this method is called to publish 
-            * the transition that triggered the change, current state and 
+            * Description: Publishes the Lifecycle events. Whenever the
+            * state of the node changes, this method is called to publish
+            * the transition that triggered the change, current state and
             * the result code of the transition
             *************************************************************/
             void publishTransition(const Transition& transition, const ResultCode& result_code);
@@ -152,25 +152,25 @@ namespace ros { namespace lifecycle {
             CallbackMap callbacks_;
             State current_;
             std::exception activeEx_;
-            
+
             /*************************************************************
             * Description: handles the first step of the transition i.e.
             * from a primary state to a transitional state
             *************************************************************/
             bool handlePrimaryStep(const PrimaryInput& input);
-            
+
             /*************************************************************
             * Description: Handles the second step of the transition i.e.
             * from a transitional state to a primary state.
-            *************************************************************/   
+            *************************************************************/
             bool handleSecondaryStep(const SecondaryInput& input);
-            
+
             /****************************************************************
-            * Description: Handles the ErrorProcessing step in a transition 
+            * Description: Handles the ErrorProcessing step in a transition
             ****************************************************************/
             bool handleErrorProcessing(const std::exception& ex);
-            
-            
+
+
             bool activeEx_cb(void) { throw activeEx_; return true; };
         };
 }}

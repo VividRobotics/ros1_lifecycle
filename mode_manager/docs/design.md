@@ -1,11 +1,11 @@
 # Overall Mode Manager Design
 
 The mode manager is responsible for knowing and switching the system's global mode. The basic
-assumption is that "system modes" are implemented by de-/activating and reconfiguring nodes. 
+assumption is that "system modes" are implemented by de-/activating and reconfiguring nodes.
 There is no explicit concept of "component mode" in here. In particular, currently, if a node has
 modes, they can only by changed by cycling through the "unconfigured" state.
 
-Furthermore, it needs work well with auxiliary ROS features, such as diagnostics, robot 
+Furthermore, it needs work well with auxiliary ROS features, such as diagnostics, robot
 descriptions, tf, etc.
 
 In sum, the mode manager does

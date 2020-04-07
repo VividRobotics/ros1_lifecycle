@@ -32,31 +32,31 @@ LifecycleManager::LifecycleManager(const ros::NodeHandle& nh) :
         lm_broadcaster_(nh){
     primary_steps_[make_pair(UNCONFIGURED, CONFIGURE)]      = Configuring;
     primary_steps_[make_pair(UNCONFIGURED, SHUTDOWN)]       = ShuttingDown;
-    
+
     primary_steps_[make_pair(INACTIVE, CLEANUP)]            = CleaningUp;
     primary_steps_[make_pair(INACTIVE, ACTIVATE)]           = Activating;
     primary_steps_[make_pair(INACTIVE, SHUTDOWN)]           = ShuttingDown;
     primary_steps_[make_pair(INACTIVE, ERROR)]              = ErrorProcessing;
-        
+
     primary_steps_[make_pair(ACTIVE, SHUTDOWN)]             = ShuttingDown;
     primary_steps_[make_pair(ACTIVE, DEACTIVATE)]           = Deactivating;
     primary_steps_[make_pair(ACTIVE, ERROR)]                = ErrorProcessing;
-        
+
     secondary_steps_[make_pair(Configuring, SUCCESS)]       = INACTIVE;
     secondary_steps_[make_pair(Configuring, FAILURE)]       = UNCONFIGURED;
-    
+
     secondary_steps_[make_pair(CleaningUp, SUCCESS)]        = UNCONFIGURED; // must not fail
-    
+
     secondary_steps_[make_pair(Activating, SUCCESS)]        = ACTIVE;
     secondary_steps_[make_pair(Activating, FAILURE)]        = INACTIVE;
-    
+
     secondary_steps_[make_pair(ShuttingDown, SUCCESS)]      = FINALIZED; // must not fail
 
     secondary_steps_[make_pair(Deactivating, SUCCESS)]      = INACTIVE; // must not fail
 
     secondary_steps_[make_pair(ErrorProcessing, SUCCESS)]   = UNCONFIGURED;
     secondary_steps_[make_pair(ErrorProcessing, FAILURE)]   = FINALIZED;
-    
+
     setTransitionCallback(ERROR, boost::bind(&LifecycleManager::activeEx_cb, this) );
 
     state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, true);
@@ -64,7 +64,7 @@ LifecycleManager::LifecycleManager(const ros::NodeHandle& nh) :
 }
 
 LifecycleManager::~LifecycleManager() {
-    
+
 }
 
 void LifecycleManager::publishTransition(const Transition& transition, const ResultCode& result_code) {
@@ -72,7 +72,7 @@ void LifecycleManager::publishTransition(const Transition& transition, const Res
     msg.transition = transition;
     msg.end_state = current_;
     msg.result_code = result_code;
-    
+
     state_pub_.publish(msg);
     lm_broadcaster_.send_lm_event(msg);
 }
@@ -180,13 +180,13 @@ bool LifecycleManager::handleTransition(const Transition& transition) {
             handleSecondaryStep(make_pair(current_, FAILURE));
         }
     }
-    
+
     if(result) {
         publishTransition(transition, SUCCESS);
     } else {
         publishTransition(transition, FAILURE);
     }
-    
+
     return result;
 }
 
@@ -208,7 +208,7 @@ bool LifecycleManager::handlePrimaryStep(const PrimaryInput& input) {
         throw IllegalTransitionException(input);
     }
 }
-  
+
 bool LifecycleManager::handleSecondaryStep(const SecondaryInput& input) {
     SecondaryStepMap::const_iterator secondary_steps_iter = secondary_steps_.find(input);
     if(secondary_steps_iter != secondary_steps_.end()) {

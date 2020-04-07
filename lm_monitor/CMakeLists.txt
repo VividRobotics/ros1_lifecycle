@@ -46,7 +46,7 @@ catkin_python_setup()
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
-#   DIRECTORY 
+#   DIRECTORY
 #   msg
 #   FILES
 #   lm_events.msg
@@ -156,7 +156,7 @@ catkin_package(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS lm_monitor 
+# install(TARGETS lm_monitor
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

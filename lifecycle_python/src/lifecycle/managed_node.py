@@ -35,27 +35,27 @@ class ManagedNode(object):
         self._lm.set_error_cb(self._on_error)
         #start the action server
         self._lm.start()
-        
+
     def __del__(self):
         self._lm.__del__()
-        
+
     def _on_configure(self):
         return True
-    
+
     def _on_cleanup(self):
         return False
-    
+
     '''A node must not start directly after process creation when the life-cycle is in use,
     so the user needs to provide an on_activate callback and this is enforced by using abstractmethod.'''
     @abstractmethod
     def _on_activate(self):
         return True
-        
+
     def _on_decativate(self):
         return False
-        
+
     def _on_shutdown(self):
         return True
-    
+
     def _on_error(self, ex):
         return False

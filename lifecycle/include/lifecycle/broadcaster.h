@@ -29,13 +29,13 @@ namespace ros { namespace lifecycle {
         class LmEventBroadcaster {
         public:
             /******************************************************************
-            *`LmEventBroadcaster` is a convenient way to send Lifecycle 
+            *`LmEventBroadcaster` is a convenient way to send Lifecycle
             *event updates on the ``"/lm_events"`` message topic.
             ******************************************************************/
             LmEventBroadcaster(const ros::NodeHandle& nh);
-            
+
             void send_lm_event(const lifecycle_msgs::Lifecycle msg);
-            
+
         private:
             ros::NodeHandle nh_;
             std::string node_name;

@@ -29,7 +29,7 @@ public:
         _lcm.setTransitionCallback(ros::lifecycle::DEACTIVATE, boost::bind(&ExampleNode::deactivate, this));
         _lcm.setTransitionCallback(ros::lifecycle::ACTIVATE, boost::bind(&ExampleNode::shutdown, this));
         _lcm.setErrorCb(boost::bind(&ExampleNode::errorprocessing, this, _1));
-        
+
         //start the action server
         _lcm.start();
     }
@@ -50,8 +50,8 @@ private:
 int main(int argc, char* argv[])
 {
     ros::init(argc, argv, "example_lcm_node");
-    
+
     ExampleNode node;
-    
+
     ros::spin();
 }

@@ -36,11 +36,11 @@ namespace ros { namespace lifecycle {
             LifecycleAPIException(const char* msg);
             virtual ~LifecycleAPIException() throw();
             virtual const char* what() const throw();
-            
+
         private:
             std::string message;
         };
-        
+
         class LifecycleTransitionSequence {
         public:
             /****************************************************************
@@ -48,29 +48,29 @@ namespace ros { namespace lifecycle {
             * to reach target_state
             ****************************************************************/
             LifecycleTransitionSequence(boost::shared_ptr<LifecycleActionClient> client, TransitionList transitions, completionCb completion_cb);
-            
+
             /****************************************************************
-            * Description: Starts the transitions 
+            * Description: Starts the transitions
             ****************************************************************/
             void go(void);
-            
+
             /****************************************************************
             * Description: Cancels the transitions
             ****************************************************************/
             void cancel(void);
-            
+
             /****************************************************************
             * Description: Check if the all transitions are complete. Returns
-            * true if all the transactions are complete or the transactions 
+            * true if all the transactions are complete or the transactions
             * are cancelled else false is returned.
             ****************************************************************/
             bool is_done(void);
-            
+
             /****************************************************************
             * Description: Returns the latest result from the server
             ****************************************************************/
             actionlib::SimpleClientGoalState::StateEnum get_result(void);
-            
+
         protected:
             bool cancelled_;
             bool sequencer_busy_;
@@ -78,58 +78,58 @@ namespace ros { namespace lifecycle {
             TransitionList transitions_;
             boost::shared_ptr<LifecycleActionClient> client_;
             actionlib::SimpleClientGoalState::StateEnum result_;
-            
+
             /****************************************************************
-            * Description: Non blocking call. Returns true if the latest 
+            * Description: Non blocking call. Returns true if the latest
             * goal was completed sucessfully else if the goal resulted in any
             * other condition or the goal was cancelled returns false.
             ****************************************************************/
             bool has_succeded(void);
-            
+
         private:
             void step_(void);
-            void transitionCb_(const actionlib::SimpleClientGoalState& state, 
+            void transitionCb_(const actionlib::SimpleClientGoalState& state,
                 const lifecycle_msgs::LifecycleResultConstPtr& result);
         };
-        
+
         class LifecycleClient {
         public:
             /****************************************************************
-            * Description: Ctor. Creates a action client and 
+            * Description: Ctor. Creates a action client and
             * subscribes to lifecycle_state topic
             ****************************************************************/
             LifecycleClient(ros::NodeHandle& nh, std::string node_name);
-            
+
             /****************************************************************
             * Description: Sends the necessary events to go the given target state,
-            * based on the current state. Invokes "completion_cb" when done. 
+            * based on the current state. Invokes "completion_cb" when done.
             * completion_cb should take a single boolean to indicate success.
             * Throws LifecycleAPIException if the server is not found.
             ****************************************************************/
             void goToState(State target_state, completionCb completion_cb);
-            
+
             void cancel();
-            
+
             /****************************************************************
             * Description: Stores the last server state internally
             * param type: msg: Lifecycle
             ****************************************************************/
             void stateCb(const lifecycle_msgs::Lifecycle& msg);
-            
+
         protected:
             State server_state_;
             completionCb completion_cb_;
             LifecycleSubscriber state_sub_;
             boost::shared_ptr<LifecycleTransitionSequence> handle_;
             boost::shared_ptr<LifecycleActionClient> action_client_;
-            
+
         private:
             Events events_;
             ros::NodeHandle nh_;
             std::string node_name_;
             void transition_completion_cb_(bool result);
         };
-        
+
 }}
 
 #endif //LIFECYCLE_Client_H

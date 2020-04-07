@@ -29,7 +29,7 @@ public:
 protected:
     // override must-have functions from managed node
     bool onActivate() { ROS_INFO("Activating"); return true; };
-    
+
     // define other virtual methods
     bool onConfigure() { ROS_INFO("Configuring"); return true; };
     bool onDeactivate() { ROS_INFO("Deactivating"); return true; };
@@ -47,6 +47,6 @@ int main(int argc, char* argv[])
     nh.setParam(PARAM_LIFECYCLE_MANAGEMENT, true);
 
     ExampleManagedNode node(nh);
-    
+
     ros::spin();
 }

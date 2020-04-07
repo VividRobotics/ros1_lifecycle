@@ -16,14 +16,14 @@ from lifecycle.client import LifecycleClient, create_client
 from lifecycle.lifecycle_model import State, LifecycleModel
 
 SLEEP_TIME = 0.001
-        
+
 class LifecycleTestException(Exception):
     '''
     throw on bad use of the Lifecycle test library
     '''
     def __init__(self, msg):
         Exception.__init__(self, msg)
-        
+
 class LmClient(object):
     '''
     A class to create a client for the managed node to handle the state transitions
@@ -32,25 +32,25 @@ class LmClient(object):
         self._client = create_client(component_fqn)
         self._status = None
         self._waiting = 0
-        
+
     def go_to_state(self, state, timeout = 3):
         '''
         Transitions the node through various states to reach the specified state
         :param state: the end state the node has to transition to
-        :param type: STATE 
+        :param type: STATE
         :param timeout: timeout for the transition to complete in seconds
         :return : bool to indicate sucess or failure
         '''
         #call the client to make the state change
         self._client.go_to_state(state, self._transition_cb)
-        
+
         while(self._status == None):
             rospy.sleep(SLEEP_TIME)
             self._waiting += SLEEP_TIME
             if (self._waiting >= timeout):
                 print("Time-out occurred")
                 return False
-        
+
         self._waiting = 0
         if(self._status == True):
             self._status = None #reset the variable for the next transition
@@ -58,7 +58,7 @@ class LmClient(object):
         else:
             print("Couldn't transition")
             return False
-    
+
     def _transition_cb(self, result):
         '''
         callback for the client
@@ -74,7 +74,7 @@ class NodeStateSequencer(object):
         self._states = states
         self._timeout = timeout
         self._delay = delay
-        
+
     def start_sequencer(self):
         '''
         Starts making the transitions from one state to another according to the list "_states"
@@ -88,9 +88,9 @@ class NodeStateSequencer(object):
                 print("Transition %s failed" %LifecycleModel.STATE_TO_STR[state])
                 return False
             rospy.sleep(self._delay) #wait until specified time before going to next state
-        
+
         return True #all the states in the given list are completed so return success
-    
+
 
 class NodeInfo(object):
     def __init__(self, node_name):
@@ -100,10 +100,10 @@ class NodeInfo(object):
             self._uri   = self._master.lookupNode(self._node_name)
         except MasterError:
             raise LifecycleTestException("Node %s not found" %self._node_name)
-        import threading 
-        self.lock = threading.Lock() 
+        import threading
+        self.lock = threading.Lock()
         self._mproxy    = MasterProxy(self._uri)
-        
+
     def get_publisher_list(self):
         '''
         Returns the list of publisher names that are registered by the node
@@ -116,7 +116,7 @@ class NodeInfo(object):
         else:
             self._pub = []
         return self._pub
-        
+
     def get_publishers_hz(self, publishers):
         '''
         Finds the publishing rate of the given publishers
@@ -135,7 +135,7 @@ class NodeInfo(object):
                 hz = self._get_publisher_hz(self._temp[0]) #we expect to find only one topic with a particular name
             self._pub_hz.append(hz)
         return self._pub_hz
-        
+
     def get_subscriber_list(self):
         '''
         Returns the list of subscriber names that are registered by the node
@@ -148,7 +148,7 @@ class NodeInfo(object):
         else:
             self._sub = []
         return self._sub
-    
+
     def get_services_list(self):
         '''
         Returns the list of service names that are registered by the node
@@ -157,7 +157,7 @@ class NodeInfo(object):
         '''
         self._srv = get_service_list('/' + self._node_name)
         return self._srv
-        
+
     def _get_publisher_hz(self, publisher):
         '''
         Finds the publishing rate of the given publisher by subscribing to it for 3 seconds
@@ -174,7 +174,7 @@ class NodeInfo(object):
         self._rate = self._msg_count / self._wait_time
         self._msg_count = 0
         return self._rate
-        
+
     def _hz_calc_cb(self, msg):
         '''
         Callback function for the subscribed topic
@@ -182,7 +182,7 @@ class NodeInfo(object):
         with self.lock:
             self._msg_count = self._msg_count + 1
         return True
-    
+
 class LifecycleTestLibrary(object):
     def __init__(self, component_fqn, pub, hz, sub, srv, **kwargs):
         '''
@@ -198,10 +198,10 @@ class LifecycleTestLibrary(object):
         self.lm_client = LmClient(component_fqn)
         #Configure node values
         self.set_expected_node_info(pub, hz, sub, srv)
-        
+
     def set_expected_node_info(self, pub, hz, sub, srv):
         '''
-        This method is called to set the node information such as the list of publishers, 
+        This method is called to set the node information such as the list of publishers,
         list of subscribers and the list of services offered by the node.
         :param pub: list of [publishers, msg_type]
         :param  hz: list of publishing rates [float]
@@ -212,7 +212,7 @@ class LifecycleTestLibrary(object):
         self.nhz = hz
         self.nsub = sub
         self.nsrv = srv
-        
+
     def test_transitions(self, states, timeout, transition_delay):
         '''
         Tests the node for multiple transitions between different states. Except FINALIZED!
@@ -223,10 +223,10 @@ class LifecycleTestLibrary(object):
         '''
         #convert the state names in str to state codes
         self._state_codes = [LifecycleModel.STR_TO_STATE[state] for state in states]
-        
+
         self._nss = NodeStateSequencer(self.lm_client, self._state_codes, timeout, transition_delay)
         return self._nss.start_sequencer()
-        
+
     def _collect_node_info(self):
         '''
         Checks the node for the registered Publications and its rate, Subscriptions and Services
@@ -236,7 +236,7 @@ class LifecycleTestLibrary(object):
         self._hz = self._ni.get_publishers_hz(self.npub)
         self._sub = self._ni.get_subscriber_list()
         self._srv = self._ni.get_services_list()
-        
+
     def test_unconfigured_state(self):
         '''
         Changes the node to UNCONFIGURED state and check for the pub, sub & srv to be non-existent
@@ -268,7 +268,7 @@ class LifecycleTestLibrary(object):
             print ("Couldn't transition to UNCONFIGURED State")
             return False
         return True
-    
+
     def test_inactive_state(self):
         '''
         Changes the node to INACTIVE state and check for the pub, sub & srv to be inactive
@@ -305,7 +305,7 @@ class LifecycleTestLibrary(object):
             print ("Couldn't transition to INACTIVE State")
             return False
         return True
-        
+
     def test_active_state(self):
         '''
         Changes the node to ACTIVE state and check for the pub, sub & srv to be active
@@ -342,7 +342,7 @@ class LifecycleTestLibrary(object):
             print ("Couldn't transition to ACTIVE State")
             return False
         return True
-        
+
     def test_finalized_state(self):
         '''
         Changes the node to FINALIZED state and check for the pub, sub & srv to be non-existent
@@ -373,8 +373,8 @@ class LifecycleTestLibrary(object):
         else:
             print ("Couldn't transition to FINALIZED State")
             return False
-        
-        
+
+
     def test_all_states(self):
         '''
         tests the behaviour of the node in each and every state
@@ -383,21 +383,21 @@ class LifecycleTestLibrary(object):
         result = self.test_unconfigured_state()
         if (result == False):
             return False
-            
+
         print ('Test INACTIVE')
         result = self.test_inactive_state()
         if (result == False):
             return False
-            
+
         print ('Test ACTIVE')
         result = self.test_active_state()
         if (result == False):
             return False
-            
+
         print ('Test FINALIZED')
         result = self.test_finalized_state()
         if (result == False):
             return False
-            
+
         #All the above tests have passed so return true
         return True

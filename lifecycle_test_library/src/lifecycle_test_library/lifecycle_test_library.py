@@ -63,6 +63,7 @@ class LmClient(object):
         '''
         callback for the client
         '''
+        rospy.loginfo('transition {}'.format(result))
         self._status = result;
 
 class NodeStateSequencer(object):

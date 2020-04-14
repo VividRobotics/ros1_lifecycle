@@ -20,6 +20,8 @@ class LmEventBroadcaster(object):
         """
         lm_monitor_msg = lm_events()
         lm_monitor_msg.node_name = self.node_name
+        lm_monitor_msg.ns = rospy.get_namespace()
+        # TODO(lucasw) delete this line?  Is it informal type info?
         lm_monitor_msg.lifecycle_event = Lifecycle()
         lm_monitor_msg.lifecycle_event = lifecycle_msg
         self.pub_lm_monitor.publish(lm_monitor_msg)

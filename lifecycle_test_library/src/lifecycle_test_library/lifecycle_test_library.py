@@ -48,7 +48,7 @@ class LmClient(object):
             rospy.sleep(SLEEP_TIME)
             self._waiting += SLEEP_TIME
             if (self._waiting >= timeout):
-                print("Time-out occurred")
+                rospy.logwarn("Time-out occurred")
                 return False
 
         self._waiting = 0
@@ -56,14 +56,18 @@ class LmClient(object):
             self._status = None #reset the variable for the next transition
             return True
         else:
-            print("Couldn't transition")
+            rospy.logwarn("Couldn't transition")
             return False
 
     def _transition_cb(self, result):
         '''
         callback for the client
         '''
-        rospy.loginfo('transition {}'.format(result))
+        text = 'transition {}'.format(result)
+        if result:
+            rospy.logdebug(text)
+        else:
+            rospy.logwarn(text)
         self._status = result;
 
 class NodeStateSequencer(object):
@@ -86,7 +90,7 @@ class NodeStateSequencer(object):
             #call the Lm client to make the state change
             result = self._lm_client.go_to_state(state, self._timeout)
             if (result == False):
-                print("Transition %s failed" %LifecycleModel.STATE_TO_STR[state])
+                rospy.logwarn("Transition %s failed" %LifecycleModel.STATE_TO_STR[state])
                 return False
             rospy.sleep(self._delay) #wait until specified time before going to next state
 
@@ -248,25 +252,25 @@ class LifecycleTestLibrary(object):
             for pub in self.npub:
                 result = [x[0] for x in self._pub if (x[0]==pub)]    #Compare the publisher name ignore the msg type
                 if (result != []):
-                    print ("The publisher topic is registered in UNCONFIGURED state")
-                    print (result)
+                    rospy.loginfo("The publisher topic is registered in UNCONFIGURED state")
+                    rospy.loginfo(result)
                     return False
             #Check that none of the expected node's subscribers are not subscribed to in the UNCONFIGURED state
             for sub in self.nsub:
                 result = [x[0] for x in self._sub if (x[0]==sub)]    #Compare the subscriber name ignore the msg type
                 if (result != []):
-                    print ("The subscriber topic is registered in UNCONFIGURED state")
-                    print (result)
+                    rospy.loginfo("The subscriber topic is registered in UNCONFIGURED state")
+                    rospy.loginfo(result)
                     return False
             #Check that none of the expected node's services are not subscribed to in the UNCONFIGURED state
             for srv in self.nsrv:
                 result = [x for x in self._srv if (x==srv)]
                 if (result != []):
-                    print ("The service is registered in UNCONFIGURED state")
-                    print (result)
+                    rospy.loginfo("The service is registered in UNCONFIGURED state")
+                    rospy.loginfo(result)
                     return False
         else:
-            print ("Couldn't transition to UNCONFIGURED State")
+            rospy.logerr("Couldn't transition to UNCONFIGURED State")
             return False
         return True
 
@@ -280,27 +284,24 @@ class LifecycleTestLibrary(object):
             for pub in self.npub:
                 result = [x[0] for x in self._pub if (x[0]==pub)]    #Compare the publisher name ignore the msg type
                 if (result == []):
-                    print ("The publisher topic is not-registered in INACTIVE state")
-                    print (pub)
+                    rospy.logerr("The publisher topic is not-registered in INACTIVE state {}".format(pub))
                     return False
             #if all the publisher are existing for the node verify the rate to be 0
             for hz in self._hz:
                 if(hz != 0):
-                    print ("The publisher topic is being published in INACTIVE state")
+                    rospy.logerr("The publisher topic is being published in INACTIVE state")
                     return False
             #Check that all the expected node's subscribers are subscribed to in the INACTIVE state
             for sub in self.nsub:
                 result = [x[0] for x in self._sub if (x[0]==sub)]    #Compare the subscriber name ignore the msg type
                 if (result == []):
-                    print ("The subscriber topic is not-registered in INACTIVE state")
-                    print (sub)
+                    rospy.logerr("The subscriber topic is not-registered in INACTIVE state {}".format(sub))
                     return False
             #Check that all the expected node's services are subscribed to in the INACTIVE state
             for srv in self.nsrv:
                 result = [x for x in self._srv if (x==srv)]
                 if (result == []):
-                    print ("The service is not-registered in INACTIVE state")
-                    print (srv)
+                    rospy.logerr("The service is not-registered in INACTIVE state {}".format(srv))
                     return False
         else:
             print ("Couldn't transition to INACTIVE State")
@@ -317,30 +318,27 @@ class LifecycleTestLibrary(object):
             for pub in self.npub:
                 result = [x[0] for x in self._pub if (x[0]==pub)]    #Compare the publisher name ignore the msg type
                 if (result == []):
-                    print ("The publisher topic is not-registered in ACTIVE state")
-                    print (pub)
+                    rospy.logerr("The publisher topic is not-registered in ACTIVE state {}".format(pub))
                     return False
             #if all the publisher are existing for the node verify the rate to be as expected
             for i, hz in enumerate(self._hz):
                 if((isclose(hz,self.nhz[i], 0.1)) == False): #Check isclose within 10% tolerance
-                    print ("The rate of publishing doesn't match")
+                    rospy.logerr("The rate of publishing doesn't match")
                     return False
             #Check that all the expected node's subscribers are subscribed to in the ACTIVE state
             for sub in self.nsub:
                 result = [x[0] for x in self._sub if (x[0]==sub)]    #Compare the subscriber name ignore the msg type
                 if (result == []):
-                    print ("The subscriber topic is not-registered in ACTIVE state")
-                    print (sub)
+                    rospy.logerr("The subscriber topic is not-registered in ACTIVE state {}".format(sub))
                     return False
             #Check that all the expected node's services are subscribed to in the ACTIVE state
             for srv in self.nsrv:
                 result = [x for x in self._srv if (x==srv)]
                 if (result == []):
-                    print ("The service is not-registered in ACTIVE state")
-                    print (srv)
+                    rospy.logerr("The service is not-registered in ACTIVE state {}".format(srv))
                     return False
         else:
-            print ("Couldn't transition to ACTIVE State")
+            rospy.loginfo("Couldn't transition to ACTIVE State")
             return False
         return True
 
@@ -354,25 +352,25 @@ class LifecycleTestLibrary(object):
             for pub in self.npub:
                 result = [x[0] for x in self._pub if (x[0]==pub)]    #Compare the publisher name ignore the msg type
                 if (result != []):
-                    print ("The publisher topic is registered in FINALIZED state")
-                    print (result)
+                    rospy.loginfo("The publisher topic is registered in FINALIZED state")
+                    rospy.loginfo(result)
                     return False
             #Check that none of the expected node's subscribers are not subscribed to in the FINALIZED state
             for sub in self.nsub:
                 result = [x[0] for x in self._sub if (x[0]==sub)]    #Compare the subscriber name ignore the msg type
                 if (result != []):
-                    print ("The subscriber topic is registered in FINALIZED state")
-                    print (result)
+                    rospy.loginfo("The subscriber topic is registered in FINALIZED state")
+                    rospy.loginfo(result)
                     return False
             #Check that none the expected node's services are not subscribed to in the FINALIZED state
             for srv in self.nsrv:
                 result = [x for x in self._srv if (x==srv)]
                 if (result != []):
-                    print ("The service is registered in FINALIZED state")
-                    print (result)
+                    rospy.loginfo("The service is registered in FINALIZED state")
+                    rospy.loginfo(result)
                     return False
         else:
-            print ("Couldn't transition to FINALIZED State")
+            rospy.logerr("Couldn't transition to FINALIZED State")
             return False
 
 
@@ -380,22 +378,22 @@ class LifecycleTestLibrary(object):
         '''
         tests the behaviour of the node in each and every state
         '''
-        print ('Test UNCONFIGURED')
+        rospy.loginfo('Test UNCONFIGURED')
         result = self.test_unconfigured_state()
         if (result == False):
             return False
 
-        print ('Test INACTIVE')
+        rospy.loginfo('Test INACTIVE')
         result = self.test_inactive_state()
         if (result == False):
             return False
 
-        print ('Test ACTIVE')
+        rospy.loginfo('Test ACTIVE')
         result = self.test_active_state()
         if (result == False):
             return False
 
-        print ('Test FINALIZED')
+        rospy.loginfo('Test FINALIZED')
         result = self.test_finalized_state()
         if (result == False):
             return False

@@ -127,10 +127,10 @@ if __name__ == '__main__':
             #do nothing
             pass
 
-    rospy.init_node("Example_Node")
+    rospy.init_node("example_node")
     print("Welcome to the example node")
 
-    eg_node = MyNode("Example_Node")
+    eg_node = MyNode("example_node")
 
     while not rospy.is_shutdown():
         pass

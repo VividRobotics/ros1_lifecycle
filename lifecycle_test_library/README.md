@@ -39,14 +39,14 @@ For example please see: lifecycle_test_library/examples/
 The configuration file is a YAML file which looks as follows:
 
 ```yaml
-node_name       : "Example_Node"
+node_name       : "example_node"
 states          : ['INACTIVE', 'UNCONFIGURED', 'INACTIVE', 'ACTIVE', 'INACTIVE', 'UNCONFIGURED', 'ACTIVE', 'UNCONFIGURED']
 timeout         : 3
 delay           : 1
-publications    : ['/Example_Node/chatter']
+publications    : ['/example_node/chatter']
 publishing_hz   : [10]
 subscriptions   : ['/noise']
-services        : ['/Example_Node/add_two_ints']
+services        : ['/example_node/add_two_ints']
 ```
 
 #### node_name

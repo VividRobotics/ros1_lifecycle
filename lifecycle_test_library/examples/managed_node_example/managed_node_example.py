@@ -25,11 +25,14 @@ if __name__ == '__main__':
             self._terminate = False
 
         def run(self):
-            self._rate = rospy.Rate(10) # 10hz
+            rate = rospy.Rate(10)  # Hz
+            count = 0
             while(not self._terminate and not rospy.is_shutdown()):
-                self.hello_str = "Hello World %s" % rospy.get_time()
-                self._pub.publish(self.hello_str)
-                self._rate.sleep()
+                hello_str = "Hello World {} {}".format(count, rospy.get_time())
+                rospy.loginfo(hello_str)
+                self._pub.publish(hello_str)
+                count += 1
+                rate.sleep()
 
         def terminate_thread(self):
             self._terminate = True
@@ -55,7 +58,10 @@ if __name__ == '__main__':
 
         def _on_cleanup(self):
             print ('_on_cleanup ')
+            # TODO(lucasw) this has issues https://github.com/lucasw/ros1_lifecycle/issues/2
             self._pub.unregister()
+            # TODO(lucasw) does this del change anything?  None should trigger garbage collection just the same.
+            del self._pub
             self._pub = None
             #TODO: check if just deleting the subscriber variable would disable the callback function too!
             self._sub.unregister()

@@ -45,8 +45,14 @@ class LifecycleManager(object):
         self.state_pub_ = rospy.Publisher(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, queue_size = 10, latch=True)
         self.lm_broadcaster = LmEventBroadcaster(component_fqn);
 
+        # announce that the node is online
+        rospy.sleep(0.1)
+        self._publish_transition(0, Result_Code.SUCCESS)
+
     def __del__(self):
-        self._as.__del__()
+        rospy.loginfo("del")
+        # TODO(lucasw) action servers don't get shut down very cleanly
+        # self._as.__del__()
 
     def _publish_transition(self, transition, result_code):
         """

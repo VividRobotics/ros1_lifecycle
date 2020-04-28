@@ -12,7 +12,7 @@ class LmEventBroadcaster(object):
 
     def __init__(self, component_fqn, queue_size=100):
         self.node_name = component_fqn
-        self.pub_lm_monitor = rospy.Publisher("/lm_events", lm_events, queue_size=queue_size)
+        self.pub_lm_monitor = rospy.Publisher("/lm_events", lm_events, latch=True, queue_size=queue_size)
 
     def sendLmEvent(self, lifecycle_msg):
         """

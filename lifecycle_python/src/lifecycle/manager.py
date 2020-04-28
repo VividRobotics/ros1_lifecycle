@@ -46,7 +46,7 @@ class LifecycleManager(object):
         self.lm_broadcaster = LmEventBroadcaster(component_fqn);
 
         # announce that the node is online
-        rospy.sleep(0.1)
+        # rospy.sleep(0.2)
         self._publish_transition(0, Result_Code.SUCCESS)
 
     def __del__(self):

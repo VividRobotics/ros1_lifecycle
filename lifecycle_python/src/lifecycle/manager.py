@@ -34,7 +34,7 @@ def check_args(fn, *args):
         return False
 
 class LifecycleManager(object):
-    def __init__(self, component_fqn):
+    def __init__(self, component_fqn, frame_id="map"):
         self._callbacks = {}
         self._current = State.UNCONFIGURED
         '''Variable to store the exception occurred during ACTIVE state'''
@@ -43,7 +43,7 @@ class LifecycleManager(object):
         self.set_transition_callback(Transition.ERROR, lambda : (_ for _ in ()).throw(self._active_ex))
         self._as = actionlib.SimpleActionServer(component_fqn + "/" + LIFECYCLE_ACTION_NAME, LifecycleAction, self._goal_cb, False)
         self.state_pub_ = rospy.Publisher(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, queue_size = 10, latch=True)
-        self.lm_broadcaster = LmEventBroadcaster(component_fqn);
+        self.lm_broadcaster = LmEventBroadcaster(component_fqn, frame_id);
 
         # announce that the node is online
         # rospy.sleep(0.2)

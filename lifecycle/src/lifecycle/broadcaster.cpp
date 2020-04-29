@@ -37,6 +37,7 @@ void LmEventBroadcaster::send_lm_event(const lifecycle_msgs::Lifecycle msg){
     lifecycle_msgs::lm_events lm_monitor_msg;
 
     lm_monitor_msg.node_name = node_name;
+    lm_monitor_msg.ns = ros::this_node::getNamespace();
     lm_monitor_msg.lifecycle_event = msg;
 
     pub_lm_monitor.publish(lm_monitor_msg);

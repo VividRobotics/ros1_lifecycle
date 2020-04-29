@@ -24,9 +24,9 @@ from lifecycle.manager import LifecycleManager, Transition
 
 class ManagedNode(object):
     __metaclass__ = ABCMeta
-    def __init__(self, component_fqn):
+    def __init__(self, component_fqn, frame_id="map"):
         super(ManagedNode,self).__init__()
-        self._lm = LifecycleManager(component_fqn)
+        self._lm = LifecycleManager(component_fqn, frame_id)
         self._lm.set_transition_callback(Transition.CONFIGURE, self._on_configure)
         self._lm.set_transition_callback(Transition.CLEANUP, self._on_cleanup)
         self._lm.set_transition_callback(Transition.ACTIVATE, self._on_activate)

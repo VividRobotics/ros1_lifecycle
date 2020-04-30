@@ -23,6 +23,9 @@ class LifecycleToMarker(object):
         markers = self.displayAllNodeStatus(self.buffer)
         marker_array.markers.extend(markers)
 
+        # TODO(lucasw) optionally have a timeout and if a node hasn't updated recently
+        # make it turn to special failed state, though also need to change broadcasters
+        # to conform to this regular update expectation.
         if False:
             if (self.node_names == None):
                 markers = self.displayAllNodeStatus(lm_events)

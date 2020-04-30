@@ -13,32 +13,59 @@ class LifecycleToMarker(object):
         self.node_names = node_names
         self.marker_pub = rospy.Publisher("lifecycle_marker_array", MarkerArray, queue_size=10)
         self.listener = LmEventListener(self.lifecycle_callback)
+        self.timer = rospy.Timer(rospy.Duration(1.0), self.update)
 
     def lifecycle_callback(self, lm_events):
+        self.buffer = lm_events
+
+    def update(self, event):
         marker_array = MarkerArray()
-        if (self.node_names == None):
-            markers = self.displayAllNodeStatus(lm_events)
-            marker_array.markers.extend(markers)
-        else:
-            for node_name in self.node_names:
-                try:
-                    marker = self.displayNodeStatus(lm_events[node_name])
-                    marker_array.markers.append(marker)
-                except KeyError:
-                    # TODO(lucasw) make a special Marker to show this
-                    rospy.logwarn('Node not yet published the status {}'.format(node_name))
+        markers = self.displayAllNodeStatus(self.buffer)
+        marker_array.markers.extend(markers)
+
+        if False:
+            if (self.node_names == None):
+                markers = self.displayAllNodeStatus(lm_events)
+                marker_array.markers.extend(markers)
+            else:
+                for node_name in self.node_names:
+                    try:
+                        markers = self.get_status_markers(lm_events[node_name])
+                        marker_array.markers.extend(markers)
+                    except KeyError:
+                        # TODO(lucasw) make a special Marker to show this
+                        rospy.logwarn('Node not yet published the status {}'.format(node_name))
+
         self.marker_pub.publish(marker_array)
+
 
     def displayAllNodeStatus(self, lm_events_buffer):
         self.node_names = lm_events_buffer.keys()
         markers = []
         for node_name in self.node_names:
-            node_status = lm_events_buffer[node_name]
-            marker = self.displayNodeStatus(node_status)
-            markers.append(marker)
+            lm_event = lm_events_buffer[node_name]
+            markers.extend(self.get_status_markers(lm_event))
         return markers
 
-    def displayNodeStatus(self, lm_event):
+    def get_status_markers(self, lm_event):
+        markers = []
+        marker = self.get_status_marker(lm_event)
+        markers.append(marker)
+        marker = self.get_status_marker(lm_event)
+        marker.type = Marker.TEXT_VIEW_FACING
+        marker.text = lm_event.node_name
+        marker.scale.x = 0.0
+        marker.scale.y = 0.0
+        marker.scale.z = 0.02
+        marker.pose.position.x -= 0.1
+        marker.color.r *= 0.8
+        marker.color.g *= 0.8
+        marker.color.b *= 0.8
+        marker.id += 1
+        markers.append(marker)
+        return markers
+
+    def get_status_marker(self, lm_event):
         # TODO(lucasw) there also needs to be a keep alive capability,
         # where statuses need to be re-affirmed periodically?
         marker = Marker()

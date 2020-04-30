@@ -11,6 +11,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 class LifecycleToMarker(object):
     def __init__(self, node_names):
         self.node_names = node_names
+        self.buffer = None
         self.marker_pub = rospy.Publisher("lifecycle_marker_array", MarkerArray, queue_size=10)
         self.listener = LmEventListener(self.lifecycle_callback)
         self.timer = rospy.Timer(rospy.Duration(1.0), self.update)
@@ -19,6 +20,8 @@ class LifecycleToMarker(object):
         self.buffer = lm_events
 
     def update(self, event):
+        if self.buffer is None:
+            return
         marker_array = MarkerArray()
         markers = self.displayAllNodeStatus(self.buffer)
         marker_array.markers.extend(markers)

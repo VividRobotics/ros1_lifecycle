@@ -5,31 +5,38 @@ import sys
 
 from lifecycle_msgs.msg import Lifecycle
 from lm_monitor.listener import LmEventListener
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 
 
 class LifecycleToMarker(object):
     def __init__(self, node_names):
         self.node_names = node_names
-        self.marker_pub = rospy.Publisher("lifecycle_markers", Marker, queue_size=10)
+        self.marker_pub = rospy.Publisher("lifecycle_marker_array", MarkerArray, queue_size=10)
         self.listener = LmEventListener(self.lifecycle_callback)
 
     def lifecycle_callback(self, lm_events):
+        marker_array = MarkerArray()
         if (self.node_names == None):
-            self.displayAllNodeStatus(lm_events)
+            markers = self.displayAllNodeStatus(lm_events)
+            marker_array.markers.extend(markers)
         else:
             for node_name in self.node_names:
                 try:
-                    self.displayNodeStatus(lm_events[node_name])
+                    marker = self.displayNodeStatus(lm_events[node_name])
+                    marker_array.markers.append(marker)
                 except KeyError:
                     # TODO(lucasw) make a special Marker to show this
                     rospy.logwarn('Node not yet published the status {}'.format(node_name))
+        self.marker_pub.publish(marker_array)
 
     def displayAllNodeStatus(self, lm_events_buffer):
         self.node_names = lm_events_buffer.keys()
+        markers = []
         for node_name in self.node_names:
             node_status = lm_events_buffer[node_name]
-            self.displayNodeStatus(node_status)
+            marker = self.displayNodeStatus(node_status)
+            markers.append(marker)
+        return markers
 
     def displayNodeStatus(self, lm_event):
         # TODO(lucasw) there also needs to be a keep alive capability,
@@ -66,7 +73,7 @@ class LifecycleToMarker(object):
             marker.color.b = 1.0
         marker.color.a = 1.0
         marker.frame_locked = True
-        self.marker_pub.publish(marker)
+        return marker
 
 if __name__ == '__main__':
     rospy.init_node('lifecycle_marker', anonymous=True)

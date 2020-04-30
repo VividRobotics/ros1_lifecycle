@@ -21,7 +21,7 @@ class LmMonitor(object):
         """
         :param lm_monitor_msg: the lm_monitor message with node_name and lifecycle_event
         """
-        self.LmEventsBuffer[lm_monitor_msg.node_name] = lm_monitor_msg
+        self.LmEventsBuffer[lm_monitor_msg.ns + lm_monitor_msg.node_name] = lm_monitor_msg
 
 if __name__ == '__main__':
     rospy.init_node('Lifecycle Monitor')

@@ -44,12 +44,15 @@ class LifecycleToMarker(object):
 
         self.marker_pub.publish(marker_array)
 
-
     def displayAllNodeStatus(self, lm_events_buffer):
         self.node_names = lm_events_buffer.keys()
         markers = []
         for node_name in self.node_names:
             lm_event = lm_events_buffer[node_name]
+
+            if lm_event.header.frame_id == '':
+                rospy.logwarn("No frame id: {}".format(lm_event))
+                continue
             markers.extend(self.get_status_markers(lm_event))
         return markers
 

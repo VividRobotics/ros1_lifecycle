@@ -25,11 +25,13 @@
 namespace ros { namespace lifecycle {
 
 using std::make_pair;
-LifecycleManager::LifecycleManager(const ros::NodeHandle& nh) :
+LifecycleManager::LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id) :
         nh_(nh),
         as_(nh, LIFECYCLE_ACTION_NAME, false),
         current_(UNCONFIGURED),
-        lm_broadcaster_(nh){
+        lm_broadcaster_(nh),
+        frame_id_(frame_id)
+{
     primary_steps_[make_pair(UNCONFIGURED, CONFIGURE)]      = Configuring;
     primary_steps_[make_pair(UNCONFIGURED, SHUTDOWN)]       = ShuttingDown;
 
@@ -69,6 +71,8 @@ LifecycleManager::~LifecycleManager() {
 
 void LifecycleManager::publishTransition(const Transition& transition, const ResultCode& result_code) {
     lifecycle_msgs::Lifecycle msg;
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = frame_id_;
     msg.transition = transition;
     msg.end_state = current_;
     msg.result_code = result_code;

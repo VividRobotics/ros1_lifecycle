@@ -18,8 +18,11 @@
 
 #include "lifecycle/managed_node.h"
 
+// TODO(lucasw) fix indentation
 namespace ros { namespace lifecycle {
-        ManagedNode::ManagedNode(const ros::NodeHandle& nh) : nh_(nh), lm_(nh) {
+        ManagedNode::ManagedNode(const ros::NodeHandle& nh, const std::string& frame_id) :
+            nh_(nh), lm_(nh, frame_id)
+        {
             lm_.setTransitionCallback(CONFIGURE, boost::bind(&ManagedNode::onConfigure, this));
             lm_.setTransitionCallback(ACTIVATE, boost::bind(&ManagedNode::onActivate, this));
             lm_.setTransitionCallback(DEACTIVATE, boost::bind(&ManagedNode::onDeactivate, this));

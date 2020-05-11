@@ -52,7 +52,7 @@ namespace ros { namespace lifecycle {
             *Initialises the values of primary_steps_ and secondary_steps_
             *with valid transitions. Defines a action server and a publisher.
             ******************************************************************/
-            LifecycleManager(const ros::NodeHandle& nh);
+            LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id = "map");
 
             /******************************************************************
             *Description: Constructor for the LifecycleManager class.
@@ -152,6 +152,7 @@ namespace ros { namespace lifecycle {
             CallbackMap callbacks_;
             State current_;
             std::exception activeEx_;
+            std::string frame_id_ = "map";
 
             /*************************************************************
             * Description: handles the first step of the transition i.e.

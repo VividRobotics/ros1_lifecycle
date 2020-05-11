@@ -50,7 +50,7 @@ class LifecycleToMarker(object):
         for node_name in self.node_names:
             lm_event = lm_events_buffer[node_name]
 
-            if lm_event.header.frame_id == '':
+            if lm_event.lifecycle_event.header.frame_id == '':
                 rospy.logwarn("No frame id: {}".format(lm_event))
                 continue
             markers.extend(self.get_status_markers(lm_event))
@@ -78,10 +78,10 @@ class LifecycleToMarker(object):
         # TODO(lucasw) there also needs to be a keep alive capability,
         # where statuses need to be re-affirmed periodically?
         marker = Marker()
-        marker.header.frame_id = lm_event.header.frame_id
-        marker.header.stamp = lm_event.header.stamp
+        marker.header.frame_id = lm_event.lifecycle_event.header.frame_id
+        marker.header.stamp = lm_event.lifecycle_event.header.stamp
         marker.type = Marker.CUBE
-        marker.ns = lm_event.header.frame_id
+        marker.ns = marker.header.frame_id
         marker.id = 0
         marker.pose.orientation.w = 1.0
         marker.scale.x = 0.1

@@ -22,6 +22,7 @@ int8 EV_ERROR               = 25
 int8 EV_SUCCESS             = 26
 int8 EV_FAILURE             = 27
 
+std_msgs/Header header
 # The requested transition
 int8 transition
 

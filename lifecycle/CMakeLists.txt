@@ -118,7 +118,7 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-#add_definitions(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Declare a C++ library
 add_library(lifecycle

@@ -12,37 +12,43 @@ class LifecycleToMarker(object):
     def __init__(self, node_names):
         self.node_names = node_names
         self.buffer = None
+        self.dirty = False
+        self.marker_array = None
         self.marker_pub = rospy.Publisher("lifecycle_marker_array", MarkerArray, queue_size=10)
         self.listener = LmEventListener(self.lifecycle_callback)
         self.timer = rospy.Timer(rospy.Duration(1.0), self.update)
 
     def lifecycle_callback(self, lm_events):
         self.buffer = lm_events
+        self.dirty = True
 
     def update(self, event):
         if self.buffer is None:
             return
-        marker_array = MarkerArray()
-        markers = self.displayAllNodeStatus(self.buffer)
-        marker_array.markers.extend(markers)
 
-        # TODO(lucasw) optionally have a timeout and if a node hasn't updated recently
-        # make it turn to special failed state, though also need to change broadcasters
-        # to conform to this regular update expectation.
-        if False:
-            if (self.node_names == None):
-                markers = self.displayAllNodeStatus(lm_events)
-                marker_array.markers.extend(markers)
-            else:
-                for node_name in self.node_names:
-                    try:
-                        markers = self.get_status_markers(lm_events[node_name])
-                        marker_array.markers.extend(markers)
-                    except KeyError:
-                        # TODO(lucasw) make a special Marker to show this
-                        rospy.logwarn('Node not yet published the status {}'.format(node_name))
+        if self.dirty:
+            self.marker_array = MarkerArray()
+            markers = self.displayAllNodeStatus(self.buffer)
+            self.marker_array.markers.extend(markers)
 
-        self.marker_pub.publish(marker_array)
+            # TODO(lucasw) optionally have a timeout and if a node hasn't updated recently
+            # make it turn to special failed state, though also need to change broadcasters
+            # to conform to this regular update expectation.
+            if False:
+                if (self.node_names == None):
+                    markers = self.displayAllNodeStatus(lm_events)
+                    marker_array.markers.extend(markers)
+                else:
+                    for node_name in self.node_names:
+                        try:
+                            markers = self.get_status_markers(lm_events[node_name])
+                            marker_array.markers.extend(markers)
+                        except KeyError:
+                            # TODO(lucasw) make a special Marker to show this
+                            rospy.logwarn('Node not yet published the status {}'.format(node_name))
+            self.dirty = False
+
+        self.marker_pub.publish(self.marker_array)
 
     def displayAllNodeStatus(self, lm_events_buffer):
         self.node_names = lm_events_buffer.keys()
@@ -123,9 +129,4 @@ if __name__ == '__main__':
             node_names = sys.argv[1:]
 
     lifecycle_marker = LifecycleToMarker(node_names)
-
-    try:
-        while not rospy.is_shutdown():
-            pass
-    except rospy.ROSInterruptException:
-        pass
+    rospy.spin()

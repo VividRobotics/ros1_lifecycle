@@ -39,7 +39,7 @@ jobs:
             sudo apt-get install -y ros-$ROS_DISTRO-dynamic-reconfigure
             sudo apt-get install -y ros-$ROS_DISTRO-ddynamic-reconfigure
             # sudo apt-get install -y ros-$ROS_DISTRO-eigen-conversions
-            # sudo apt-get install -y ros-$ROS_DISTRO-geometry-msgs
+            sudo apt-get install -y ros-$ROS_DISTRO-geometry-msgs
             sudo apt-get install -y ros-$ROS_DISTRO-genmsg
             # sudo apt-get install -y ros-$ROS_DISTRO-image-transport
             # sudo apt-get install -y ros-$ROS_DISTRO-interactive-markers

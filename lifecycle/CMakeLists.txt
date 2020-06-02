@@ -7,11 +7,19 @@ project(lifecycle)
 find_package(catkin REQUIRED
         COMPONENTS
         roscpp
+        # roslint
         rostest
         rosunit
         actionlib
         lifecycle_msgs
 )
+
+# set(
+#  ROSLINT_CPP_OPTS
+#  "--extensions=cpp,h,hpp" "--filter=-whitespace/braces"
+# )
+# roslint_cpp()
+# roslint_python()
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)

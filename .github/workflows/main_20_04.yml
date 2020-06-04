@@ -20,7 +20,8 @@ jobs:
       - name: Install ROS
         run: |
             sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
-            sudo sh -c "echo \"deb http://packages.ros.org/ros-testing/ubuntu `lsb_release -cs` main\" > /etc/apt/sources.list.d/ros1-testing.list"
+            # this breaks catking
+            # sudo sh -c "echo \"deb http://packages.ros.org/ros-testing/ubuntu `lsb_release -cs` main\" > /etc/apt/sources.list.d/ros1-testing.list"
             sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
             sudo apt-get update -y
             sudo apt-get upgrade -y
@@ -40,7 +41,8 @@ jobs:
             # sudo apt-get install -y ros-$ROS_DISTRO-class-loader
             # sudo apt-get install -y ros-$ROS_DISTRO-cmake-modules
             # sudo apt-get install -y ros-$ROS_DISTRO-cv-bridge
-            sudo apt-get install -y ros-$ROS_DISTRO-ddynamic-reconfigure
+            # this is in ros-testing currently, but that breaks catkin
+            # sudo apt-get install -y ros-$ROS_DISTRO-ddynamic-reconfigure
             sudo apt-get install -y ros-$ROS_DISTRO-dynamic-reconfigure
             # sudo apt-get install -y ros-$ROS_DISTRO-eigen-conversions
             sudo apt-get install -y ros-$ROS_DISTRO-geometry-msgs
@@ -86,6 +88,8 @@ jobs:
           # echo "::warning `ls -l`"
           cd src
           ln -s ~/work  # $CI_SOURCE_PATH
+          git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+          # git@github.com:pal-robotics/ddynamic_reconfigure.git
           cd ..
           catkin build
       - name: lint

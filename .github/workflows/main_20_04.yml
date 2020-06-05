@@ -79,7 +79,7 @@ jobs:
             mkdir -p ~/catkin_ws/src
             cd ~/catkin_ws/src
             ln -s ~/work
-            git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+            # git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
             # git@github.com:pal-robotics/ddynamic_reconfigure.git
 
       - name: build

@@ -76,24 +76,22 @@ jobs:
             # Prepare rosdep to install dependencies.
             sudo rosdep init
             rosdep update --include-eol-distros  # Support EOL distros.
+            mkdir -p ~/catkin_ws/src
+            cd ~/catkin_ws/src
+            ln -s ~/work
+            git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+            # git@github.com:pal-robotics/ddynamic_reconfigure.git
 
       - name: build
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
-          mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws
           catkin build
-          source devel/setup.bash
           # echo "::warning $CI_SOURCE_PATH"
           # echo "::warning `ls -l`"
-          cd src
-          ln -s ~/work  # $CI_SOURCE_PATH
-          git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
-          # git@github.com:pal-robotics/ddynamic_reconfigure.git
-          cd ..
-          catkin build
       - name: lint
         run: |
           cd ~/catkin_ws
+          source devel/setup.bash
           echo "no roslint for now"
           # catkin build $(catkin list --depends-on roslint -u) --no-deps --catkin-make-args roslint

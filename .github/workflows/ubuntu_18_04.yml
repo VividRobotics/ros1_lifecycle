@@ -1,4 +1,4 @@
-name: ROS CI
+name: Melodic ROS CI
 
 on: [push]
 
@@ -89,3 +89,9 @@ jobs:
           cd ~/catkin_ws
           echo "no roslint for now"
           # catkin build $(catkin list --depends-on roslint -u) --no-deps --catkin-make-args roslint
+      - name: test import
+        run: |
+          cd ~/catkin_ws
+          source devel/setup.bash
+          python --version
+          python -c "import lifecycle.managed_node"

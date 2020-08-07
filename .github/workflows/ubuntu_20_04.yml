@@ -103,5 +103,6 @@ jobs:
         run: |
           cd ~/catkin_ws
           source devel/setup.bash
-          python --version
-          python -c "import lifecycle.managed_node"
+          which python
+          python3 --version
+          python3 -c "import lifecycle.managed_node"

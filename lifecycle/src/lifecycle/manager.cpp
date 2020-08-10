@@ -20,18 +20,24 @@
 #include "lifecycle/lifecycle_model.h"
 #include "lifecycle/broadcaster.h"
 #include <boost/format.hpp>
+#include <memory>
 #include <ros/callback_queue_interface.h>
 
 namespace ros { namespace lifecycle {
 
 using std::make_pair;
-LifecycleManager::LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id) :
-        nh_(nh),
-        as_(nh, LIFECYCLE_ACTION_NAME, false),
-        current_(UNCONFIGURED),
-        lm_broadcaster_(nh),
-        frame_id_(frame_id)
+LifecycleManager::LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id)
 {
+  setup(nh, frame_id);
+}
+
+void LifecycleManager::setup(const ros::NodeHandle& nh, const std::string& frame_id)
+{
+    nh_ = nh;
+    lm_broadcaster_ = std::make_unique<LmEventBroadcaster>(nh);
+    as_ = std::make_unique<LifecycleActionServer>(nh, LIFECYCLE_ACTION_NAME, false);
+    frame_id_ = frame_id;
+
     primary_steps_[make_pair(UNCONFIGURED, CONFIGURE)]      = Configuring;
     primary_steps_[make_pair(UNCONFIGURED, SHUTDOWN)]       = ShuttingDown;
 
@@ -62,7 +68,7 @@ LifecycleManager::LifecycleManager(const ros::NodeHandle& nh, const std::string&
     setTransitionCallback(ERROR, boost::bind(&LifecycleManager::activeEx_cb, this) );
 
     state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 1, true);
-    as_.registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
+    as_->registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
 }
 
 LifecycleManager::~LifecycleManager() {
@@ -78,7 +84,7 @@ void LifecycleManager::publishTransition(const Transition& transition, const Res
     msg.result_code = result_code;
 
     state_pub_.publish(msg);
-    lm_broadcaster_.send_lm_event(msg);
+    lm_broadcaster_->send_lm_event(msg);
 }
 
 namespace {
@@ -112,7 +118,7 @@ using namespace ros;
 }
 
 void LifecycleManager::start() {
-    as_.start();
+    as_->start();
     bool lifecycle_enabled = false;
     nh_.param(PARAM_LIFECYCLE_MANAGEMENT, lifecycle_enabled, false);
     if(!lifecycle_enabled) {
@@ -151,19 +157,19 @@ void LifecycleManager::setTransitionCallback(Transition tr, transitionCb cb) {
 }
 
 void LifecycleManager::goalCb() {
-    lifecycle_msgs::LifecycleGoalConstPtr goal = as_.acceptNewGoal();
+    lifecycle_msgs::LifecycleGoalConstPtr goal = as_->acceptNewGoal();
     lifecycle_msgs::LifecycleResult result;
     try {
         if (handleTransition(static_cast<Transition>(goal->transition))) {
             result.end_state = getCurrentState();
-            as_.setSucceeded(result, "goal state reached okay");
+            as_->setSucceeded(result, "goal state reached okay");
         } else {
             result.end_state = getCurrentState();
-            as_.setAborted(result, "transition failed");
+            as_->setAborted(result, "transition failed");
         }
     } catch(const IllegalTransitionException& ite) {
         result.end_state = getCurrentState();
-        as_.setAborted(result, "requested transition is not a valid lifecycle transition");
+        as_->setAborted(result, "requested transition is not a valid lifecycle transition");
     }
 }
 

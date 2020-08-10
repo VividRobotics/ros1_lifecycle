@@ -53,6 +53,10 @@ namespace ros { namespace lifecycle {
             *with valid transitions. Defines a action server and a publisher.
             ******************************************************************/
             LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id = "map");
+            LifecycleManager()
+            {
+            }
+            void setup(const ros::NodeHandle& nh, const std::string& frame_id);
 
             /******************************************************************
             *Description: Constructor for the LifecycleManager class.
@@ -140,17 +144,17 @@ namespace ros { namespace lifecycle {
 
             ros::NodeHandle nh_;
             typedef actionlib::SimpleActionServer<lifecycle_msgs::LifecycleAction> LifecycleActionServer;
-            LifecycleActionServer as_;
+            std::unique_ptr<LifecycleActionServer> as_;
 
             typedef ros::Publisher LifecyclePublisher;
             LifecyclePublisher state_pub_;
-            LmEventBroadcaster lm_broadcaster_;
+            std::unique_ptr<LmEventBroadcaster> lm_broadcaster_;
 
         private:
             PrimaryStepMap primary_steps_;
             SecondaryStepMap secondary_steps_;
             CallbackMap callbacks_;
-            State current_;
+            State current_ = UNCONFIGURED;
             std::exception activeEx_;
             std::string frame_id_ = "map";
 

@@ -29,7 +29,9 @@ namespace ros { namespace lifecycle {
          */
         class ManagedNode {
         public:
+            ManagedNode();
             ManagedNode(const ros::NodeHandle& nh, const std::string& frame_id="map");
+            void setup(const ros::NodeHandle& nh, const std::string& frame_id="map");
             virtual ~ManagedNode(){};
         protected:
             /** Empty transition callbacks, default to return true (-> SUCCESS) */

@@ -48,7 +48,7 @@ class LmClient(object):
             rospy.sleep(SLEEP_TIME)
             self._waiting += SLEEP_TIME
             if (self._waiting >= timeout):
-                rospy.logwarn("Time-out occurred")
+                rospy.logwarn("Time-out occurred {}".format(timeout))
                 return False
 
         self._waiting = 0

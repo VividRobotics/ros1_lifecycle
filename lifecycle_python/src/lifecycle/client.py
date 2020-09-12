@@ -141,22 +141,25 @@ class LifecycleClient(object):
         :param target_state:
         :return:
         """
-        self.completion_cb_ = completion_cb
+        try:
+            self.completion_cb_ = completion_cb
 
-        # if we're already in the target state, do nothing
-        if target_state == self._server_state:
-            completion_cb(True)
-            return
+            # if we're already in the target state, do nothing
+            if target_state == self._server_state:
+                completion_cb(True)
+                return
 
-        # cancel current sequence if there is one
-        if self._handle is not None:
-            self.cancel()
+            # cancel current sequence if there is one
+            if self._handle is not None:
+                self.cancel()
 
-        # otherwise start the sequence of events to get to the target state
-        events = LifecycleModel.EVENTS.get((self._server_state, target_state), None)
-        if events is not None:
-            self._handle = LifecycleTransitionSequence(self._client, events, self._transition_completion_cb)
-            self._handle.go()
+            # otherwise start the sequence of events to get to the target state
+            events = LifecycleModel.EVENTS.get((self._server_state, target_state), None)
+            if events is not None:
+                self._handle = LifecycleTransitionSequence(self._client, events, self._transition_completion_cb)
+                self._handle.go()
+        except Exception as ex:
+            rospy.logerr(str(ex))
 
     def cancel(self):
         if self._handle is not None:
@@ -174,7 +177,10 @@ class LifecycleClient(object):
 
     def _transition_completion_cb(self, result):
         self._handle = None
-        self.completion_cb_(result)
+        try:
+            self.completion_cb_(result)
+        except Exception as ex:
+            rospy.logerr(str(ex))
 
 
 def create_client(component_fqn):

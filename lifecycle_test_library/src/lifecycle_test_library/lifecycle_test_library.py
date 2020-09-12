@@ -65,9 +65,9 @@ class LmClient(object):
         '''
         text = 'transition {}'.format(result)
         if result:
-            rospy.logdebug(text)
+            rospy.logdebug('{} after {:.2f}s'.format(text, self._waiting))
         else:
-            rospy.logwarn(text)
+            rospy.logwarn('{} after {:.2f}s'.format(text, self._waiting))
         self._status = result;
 
 class NodeStateSequencer(object):

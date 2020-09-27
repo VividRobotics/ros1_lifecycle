@@ -32,6 +32,7 @@ class LmClient(object):
         self._client = create_client(component_fqn)
         self._status = None
         self._waiting = 0
+        self._last_transition_success = True
 
     def go_to_state(self, state, timeout = 3):
         '''
@@ -56,7 +57,8 @@ class LmClient(object):
             self._status = None #reset the variable for the next transition
             return True
         else:
-            rospy.logwarn("Couldn't transition")
+            if self._last_transition_success:
+                rospy.logwarn("Couldn't transition")
             return False
 
     def _transition_cb(self, result):
@@ -65,9 +67,16 @@ class LmClient(object):
         '''
         text = 'transition {}'.format(result)
         if result:
-            rospy.logdebug('{} after {:.2f}s'.format(text, self._waiting))
+            text = '{} after {:.2f}s'.format(text, self._waiting)
+            if not self._last_transition_success:
+                rospy.logwarn(text)
+            else:
+                rospy.logdebug(text)
+            self._last_transition_success = True
         else:
-            rospy.logwarn('{} after {:.2f}s'.format(text, self._waiting))
+            if self._last_transition_success:
+                rospy.logwarn('{} after {:.2f}s'.format(text, self._waiting))
+            self._last_transition_success = False
         self._status = result;
 
 class NodeStateSequencer(object):

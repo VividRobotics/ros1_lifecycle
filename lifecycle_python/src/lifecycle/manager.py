@@ -73,8 +73,14 @@ class LifecycleManager(object):
         msg.end_state = self._current
         msg.result_code = result_code
 
-        self.state_pub_.publish(msg)
-        self.lm_broadcaster.sendLmEvent(msg)
+        try:
+            self.state_pub_.publish(msg)
+            self.lm_broadcaster.sendLmEvent(msg)
+        except Exception as ex:
+            # if rospy.is_shutdown():
+            print("wanted to publish transition but rospy is down")
+            print(msg)
+            print(ex)
 
     def start(self):
         """

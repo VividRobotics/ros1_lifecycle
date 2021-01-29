@@ -48,7 +48,7 @@ class LmClient(object):
             rospy.sleep(SLEEP_TIME)
             self._waiting += SLEEP_TIME
             if (self._waiting >= timeout):
-                rospy.logwarn("Time-out occurred")
+                rospy.logwarn_throttle(10.0, "Time-out occurred")
                 return False
 
         self._waiting = 0
@@ -56,7 +56,7 @@ class LmClient(object):
             self._status = None #reset the variable for the next transition
             return True
         else:
-            rospy.logwarn("Couldn't transition")
+            rospy.logwarn_throttle(10.0, "Couldn't transition")
             return False
 
     def _transition_cb(self, result):
@@ -67,7 +67,7 @@ class LmClient(object):
         if result:
             rospy.logdebug(text)
         else:
-            rospy.logwarn(text)
+            rospy.logwarn_throttle(10.0, text)
         self._status = result;
 
 class NodeStateSequencer(object):

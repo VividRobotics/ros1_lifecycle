@@ -56,7 +56,7 @@ class LmClient(object):
             self._status = None #reset the variable for the next transition
             return True
         else:
-            rospy.logwarn_throttle(10.0, "Couldn't transition")
+            rospy.logwarn_throttle(60.0, "Couldn't transition")
             return False
 
     def _transition_cb(self, result):
@@ -67,7 +67,7 @@ class LmClient(object):
         if result:
             rospy.logdebug(text)
         else:
-            rospy.logwarn_throttle(10.0, text)
+            rospy.logwarn_throttle(60.0, text)
         self._status = result;
 
 class NodeStateSequencer(object):

@@ -67,7 +67,7 @@ void LifecycleManager::setup(const ros::NodeHandle& nh, const std::string& frame
 
     setTransitionCallback(ERROR, boost::bind(&LifecycleManager::activeEx_cb, this) );
 
-    state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 1, true);
+    state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 4, true);
     as_->registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
 }
 
@@ -119,9 +119,10 @@ using namespace ros;
 
 void LifecycleManager::start() {
     as_->start();
-    bool lifecycle_enabled = false;
-    nh_.param(PARAM_LIFECYCLE_MANAGEMENT, lifecycle_enabled, false);
+    bool lifecycle_enabled = true;
+    nh_.param(PARAM_LIFECYCLE_MANAGEMENT, lifecycle_enabled, true);
     if(!lifecycle_enabled) {
+      ROS_INFO_STREAM("not using lifecycle management");
     	// schedule a callback that will activate this node in the absence of
     	// a manager
     	nh_.getCallbackQueue()->addCallback(boost::make_shared<ActivationCallback>(this));

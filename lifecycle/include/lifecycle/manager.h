@@ -31,7 +31,7 @@
 #include <lifecycle_msgs/Lifecycle.h>
 #include <lifecycle/broadcaster.h>
 
-#define PARAM_LIFECYCLE_MANAGEMENT "/lifecycle_enabled"
+#define PARAM_LIFECYCLE_MANAGEMENT "lifecycle_enabled"
 
 namespace ros { namespace lifecycle {
 

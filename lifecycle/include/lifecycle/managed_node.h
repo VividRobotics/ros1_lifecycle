@@ -46,6 +46,14 @@ namespace ros { namespace lifecycle {
             virtual bool onError(const std::exception&) { return false; };
 
             State getCurrentState() { return lm_.getCurrentState(); }
+
+            // TODO(lucasw) anything wrong with exposing these?
+            bool configure() { return lm_.configure(); }
+            bool activate() { return lm_.activate(); }
+            bool deactivate() { return lm_.deactivate(); }
+            bool cleanup() { return lm_.cleanup(); }
+            bool shutdown() { return lm_.shutdown(); }
+
             bool raiseError(const std::exception& ex) {
             	return lm_.raiseError(ex);
             }

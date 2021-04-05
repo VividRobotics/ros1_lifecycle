@@ -1,0 +1,9 @@
+[package]
+name = "ros1_lifecycle_rust"
+version = "0.0.1"
+authors = ["Lucas Walter <wsacul@gmail.com"]
+edition = "2018"
+
+[dependencies]
+rosrust = { git = "https://github.com/lucasw/rosrust", branch = "noetic_aggregated" }
+rosrust_msg = { git = "https://github.com/lucasw/rosrust", branch = "noetic_aggregated" }

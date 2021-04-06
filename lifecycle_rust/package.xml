@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>lifecycle</name>
+  <name>lifecycle_rust</name>
   <version>0.1.0</version>
   <description>The lifecycle rust package</description>
 

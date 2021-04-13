@@ -43,6 +43,12 @@ jobs:
       - name: Test Corrosion install
         run: |
             cmake --find-package -DNAME=Corrosion -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST
+      - name: roslint
+        uses: actions/checkout@v2
+        with:
+            repository: lucasw/roslint
+            ref: roslint_rust
+            path: catkin_ws/src/roslint
       ### ROS ###
       - name: Setup for ROS ${{ matrix.os_distro[1] }} install
         run: |

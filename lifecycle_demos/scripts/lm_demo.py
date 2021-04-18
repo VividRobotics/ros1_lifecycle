@@ -8,6 +8,7 @@
 import traceback
 import rospy
 
+from lifecycle.lifecycle_model import LifecycleModel
 from lifecycle.managed_node import ManagedNode
 from std_msgs.msg import Float32
 
@@ -20,7 +21,7 @@ class LmDemo(ManagedNode):
         self.pub = None
         self.sub = None
 
-        # self.timer = rospy.Timer(rospy.Duration(4.0), self._outer_update)
+        self.outer_timer = rospy.Timer(rospy.Duration(4.0), self._outer_update)
 
         # TODO(lucasw) also dynamic dynamic reconfigure,
         # action client or server
@@ -35,6 +36,7 @@ class LmDemo(ManagedNode):
         self.sub = rospy.Subscriber("sub", Float32, queue_size=4)
         # TODO(lucasw) set up a service server + client
 
+        self.configured_timer = rospy.Timer(rospy.Duration(4.0), self._configured_update)
         rospy.loginfo("configured")
         return True
 
@@ -52,6 +54,7 @@ class LmDemo(ManagedNode):
 
     def _on_cleanup(self):
         rospy.loginfo("Cleaning up")
+        self.configured_timer.shutdown()
         self.sub.unregister()
         self.pub.unregister()
         rospy.loginfo("cleaned up")
@@ -72,8 +75,15 @@ class LmDemo(ManagedNode):
         return True
 
     def _update(self, event):
-        rospy.loginfo("update")
+        rospy.loginfo("activated update")
 
+    def _configured_update(self, event):
+        rospy.loginfo("configured update")
+
+    def _outer_update(self, event):
+        cur_state = self._lm.get_current_state()
+        cur_state_str = LifecycleModel.STATE_TO_STR[cur_state]
+        rospy.loginfo("outer update {} {}".format(cur_state_str, cur_state))
 
 if __name__ == '__main__':
     rospy.init_node('lm_demo')

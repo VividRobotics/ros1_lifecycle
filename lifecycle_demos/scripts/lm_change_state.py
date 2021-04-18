@@ -16,9 +16,23 @@ class LmChangeState(object):
         # the namespace define which lifecycle node to connect to
         self._client = create_client()
 
+        cur = rospy.Time.now()
+        while True:
+            elapsed = rospy.Time.now() - cur
+            if elapsed > rospy.Duration(4.0):
+                rospy.logerr("Couldn't get server state")
+                rospy.signal_shutdown("Couldn't get server state, exiting")
+                return
+            cur_state = self._client._server_state
+            if cur_state != None:
+                break
+            rospy.sleep(0.2)
+
+        cur_state_str = LifecycleModel.STATE_TO_STR[cur_state]
+        rospy.loginfo("Cur state {} {} {}".format(rospy.get_namespace(), cur_state_str, cur_state))
+
         goal_str = rospy.get_param("~goal", "inactive")
         self.goal_state = LifecycleModel.STR_TO_STATE[goal_str]
-        # TODO(lucasw) print current state
         rospy.loginfo("Goal state {} {}".format(goal_str, self.goal_state))
         self._client.go_to_state(self.goal_state, self.transition_cb)
 

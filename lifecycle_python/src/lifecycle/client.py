@@ -130,7 +130,7 @@ class LifecycleClient(object):
         :return:
         """
         self._client = client
-        self._server_state = LifecycleGoal.PSTATE_UNCONFIGURED
+        self._server_state = None  # LifecycleGoal.PSTATE_UNCONFIGURED
         self._handle = None
 
     def go_to_state(self, target_state, completion_cb):
@@ -143,8 +143,13 @@ class LifecycleClient(object):
         """
         self.completion_cb_ = completion_cb
 
-        # if we're already in the target state, do nothing
+        if self._server_state is None:
+            rospy.logerr("Haven't received server state yet")
+            completion_cb(False)
+            return
+
         if target_state == self._server_state:
+            rospy.loginfo("already in the target state, do nothing")
             completion_cb(True)
             return
 
@@ -170,6 +175,8 @@ class LifecycleClient(object):
         :type msg: Lifecycle
         :return:
         """
+        if self._server_state is None:
+            rospy.loginfo("first state {}".format(msg.end_state))
         self._server_state = msg.end_state
 
     def _transition_completion_cb(self, result):
@@ -182,10 +189,14 @@ def create_client(component_fqn=None):
         component_fqn += "/"
     else:
         component_fqn = ""
+    action_path = component_fqn + LIFECYCLE_ACTION_NAME
+    state_path = component_fqn + LIFECYCLE_STATE_TOPIC
+    rospy.loginfo("{} {} {}".format(rospy.get_namespace(), action_path, state_path))
 
-    action_client = actionlib.action_client.ActionClient(component_fqn + LIFECYCLE_ACTION_NAME,
-                                                  LifecycleAction)
-    action_client.wait_for_server(timeout=rospy.Duration(1.0))
+    action_client = actionlib.action_client.ActionClient(action_path, LifecycleAction)
+    rv = action_client.wait_for_server(timeout=rospy.Duration(1.0))
+    rospy.loginfo("Connected to action client {}".format(rv))
     lc_client = LifecycleClient(action_client)
-    rospy.Subscriber(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, lc_client.state_cb)
+
+    rospy.Subscriber(state_path, Lifecycle, lc_client.state_cb)
     return lc_client

@@ -177,8 +177,13 @@ class LifecycleClient(object):
         self.completion_cb_(result)
 
 
-def create_client(component_fqn):
-    action_client = actionlib.action_client.ActionClient(component_fqn + "/" + LIFECYCLE_ACTION_NAME,
+def create_client(component_fqn=None):
+    if component_fqn != None and component_fqn != "":
+        component_fqn += "/"
+    else:
+        component_fqn = ""
+
+    action_client = actionlib.action_client.ActionClient(component_fqn + LIFECYCLE_ACTION_NAME,
                                                   LifecycleAction)
     action_client.wait_for_server(timeout=rospy.Duration(1.0))
     lc_client = LifecycleClient(action_client)

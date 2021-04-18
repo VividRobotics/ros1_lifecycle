@@ -130,6 +130,8 @@ class LifecycleModel(object):
         }
 
     '''A Dictionary to translate a String to equivalent State Number. To be used for friendly input of parameters'''
+
+    # TODO(lucasw) use upper or lower to handle all cases
     STR_TO_STATE = {
         # primary states
         'UNCONFIGURED'      : State.UNCONFIGURED,

@@ -145,6 +145,7 @@ class LifecycleClient(object):
 
         # if we're already in the target state, do nothing
         if target_state == self._server_state:
+            rospy.loginfo("already in the target state, do nothing {}".format(target_state))
             completion_cb(True)
             return
 

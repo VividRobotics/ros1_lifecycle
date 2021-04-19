@@ -51,7 +51,8 @@ class LifecycleManager(object):
         self._publish_transition(0, Result_Code.SUCCESS)
 
     def __del__(self):
-        rospy.loginfo("del")
+        # Can't rospy.loginfo from a del
+        pass
         # TODO(lucasw) action servers don't get shut down very cleanly
         # self._as.__del__()
 

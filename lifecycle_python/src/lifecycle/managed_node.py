@@ -20,6 +20,7 @@
 from abc import ABCMeta
 from abc import abstractmethod
 
+from lifecycle.lifecycle_model import LifecycleModel, State
 from lifecycle.manager import LifecycleManager, Transition
 
 class ManagedNode(object):
@@ -59,3 +60,36 @@ class ManagedNode(object):
 
     def _on_error(self, ex):
         return False
+
+
+    # the above are overloaded with the actual state changing code,
+    # below just changes state appropriately
+    def configure(self):
+        if self._lm.get_current_state() == State.UNCONFIGURED:
+            self._lm.configure()
+
+    def activate(self):
+        self.configure()
+        if self._lm.get_current_state() == State.INACTIVE:
+            self._lm.activate()
+
+    def deactivate(self):
+        if self._lm.get_current_state() == State.ACTIVE:
+            self._lm.deactivate()
+
+    def cleanup(self):
+        self.deactivate()
+        if self._lm.get_current_state() == State.INACTIVE:
+            self._lm.cleanup()
+
+    def shutdown(self):
+        self.deactivate()
+        self.cleanup()
+        if self._lm.get_current_state() == State.UNCONFIGURED:
+            self._lm.shutdown()
+
+    def get_state_str(self):
+        return self._lm.get_current_state()
+
+    def get_state_str(self):
+        return LifecycleModel.STATE_TO_STR[self._lm.get_current_state()]

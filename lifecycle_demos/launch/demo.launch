@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node name="parent" pkg="lifecycle_demos" type="lm_parent.py" output="screen" />
+  <group ns="lower" >
+    <node name="child1" pkg="lifecycle_demos" type="lm_demo.py" output="screen" />
+    <node name="child2" pkg="lifecycle_demos" type="lm_demo.py" output="screen" />
+  </group>
+
+</launch>

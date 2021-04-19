@@ -133,6 +133,23 @@ class LifecycleClient(object):
         self._server_state = None  # LifecycleGoal.PSTATE_UNCONFIGURED
         self._handle = None
 
+    # TODO(lucasw) not sure about having this pair here, but convenient for now
+    def completion_cb(self, result):
+        self._state_achieved = result
+
+    def go_to_state_timed(self, target_state, timeout=2.0):
+        self._state_achieved = None
+        self.go_to_state(target_state, self.completion_cb)
+        cur = rospy.Time.now()
+        # TODO(lucasw) how to properly await the callback?
+        while True:
+            rospy.sleep(0.1)
+            if self._state_achieved is not None:
+                return self._state_achieved
+            elapsed = rospy.Time.now() - cur
+            if elapsed.to_sec() > timeout:
+                return False
+
     def go_to_state(self, target_state, completion_cb):
         """
         Sends the necessary events to go the given target state, based on the current state. Invokes "completion_cb"

@@ -105,6 +105,7 @@ class LifecycleModel(object):
 
     '''A Dictionary to translate a State Number to equivalent String. To be used for debugging output'''
     STATE_TO_STR = {
+        None    : 'NONE',
         # primary states
         State.UNCONFIGURED    : 'UNCONFIGURED',
         State.INACTIVE        : 'INACTIVE',

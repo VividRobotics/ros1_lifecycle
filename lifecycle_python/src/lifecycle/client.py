@@ -133,15 +133,43 @@ class LifecycleClient(object):
         self._server_state = None  # LifecycleGoal.PSTATE_UNCONFIGURED
         self._handle = None
 
-    # TODO(lucasw) not sure about having this pair here, but convenient for now
+    # TODO(lucasw) change the testing method so this can be the regular constructor?
+    # It is valuable to be able to supply a non action client but with the same interface
+    # for testing
+    @staticmethod
+    def create_client(component_fqn=None):
+        if component_fqn != None and component_fqn != "":
+            component_fqn += "/"
+        else:
+            component_fqn = ""
+        action_path = component_fqn + LIFECYCLE_ACTION_NAME
+        state_path = component_fqn + LIFECYCLE_STATE_TOPIC
+        rospy.loginfo("{} {} {}".format(rospy.get_namespace(), action_path, state_path))
+
+        action_client = actionlib.action_client.ActionClient(action_path, LifecycleAction)
+        rv = action_client.wait_for_server(timeout=rospy.Duration(1.0))
+        rospy.loginfo("Connected to action client {}".format(rv))
+        lc_client = LifecycleClient(action_client)
+
+        rospy.Subscriber(state_path, Lifecycle, lc_client.state_cb)
+        return lc_client
+
     def completion_cb(self, result):
         self._state_achieved = result
 
+    # TODO(lucasw) not sure about having this here, but convenient for now
     def go_to_state_timed(self, target_state, timeout=2.0):
+        # TODO(lucasw) if this outer function exits before the inner callback
+        # is called, but then it does get called, what happens?
         self._state_achieved = None
+        # TODO(lucasw) is there a way to make this work?  It seems to lock up
+        # def completion_cb(result):
+        #     state_achieved = result
+        # completion_cb = lambda result: state_achieved = result
+        # self.go_to_state(target_state, completion_cb)
         self.go_to_state(target_state, self.completion_cb)
         cur = rospy.Time.now()
-        # TODO(lucasw) how to properly await the callback?
+
         while True:
             rospy.sleep(0.1)
             if self._state_achieved is not None:
@@ -199,21 +227,3 @@ class LifecycleClient(object):
     def _transition_completion_cb(self, result):
         self._handle = None
         self.completion_cb_(result)
-
-
-def create_client(component_fqn=None):
-    if component_fqn != None and component_fqn != "":
-        component_fqn += "/"
-    else:
-        component_fqn = ""
-    action_path = component_fqn + LIFECYCLE_ACTION_NAME
-    state_path = component_fqn + LIFECYCLE_STATE_TOPIC
-    rospy.loginfo("{} {} {}".format(rospy.get_namespace(), action_path, state_path))
-
-    action_client = actionlib.action_client.ActionClient(action_path, LifecycleAction)
-    rv = action_client.wait_for_server(timeout=rospy.Duration(1.0))
-    rospy.loginfo("Connected to action client {}".format(rv))
-    lc_client = LifecycleClient(action_client)
-
-    rospy.Subscriber(state_path, Lifecycle, lc_client.state_cb)
-    return lc_client

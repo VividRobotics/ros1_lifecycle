@@ -7,14 +7,14 @@
 
 import rospy
 
-from lifecycle.client import create_client
+from lifecycle.client import LifecycleClient
 from lifecycle.lifecycle_model import LifecycleModel
 
 
 class LmChangeState(object):
     def __init__(self):
         # the namespace define which lifecycle node to connect to
-        self._client = create_client()
+        self._client = LifecycleClient.create_client()
 
         cur = rospy.Time.now()
         while True:
@@ -31,7 +31,7 @@ class LmChangeState(object):
         cur_state_str = LifecycleModel.STATE_TO_STR[cur_state]
         rospy.loginfo("Cur state {} {} {}".format(rospy.get_namespace(), cur_state_str, cur_state))
 
-        goal_str = rospy.get_param("~goal", "inactive")
+        goal_str = rospy.get_param("~state", "inactive")
         self.goal_state = LifecycleModel.STR_TO_STATE[goal_str]
         rospy.loginfo("Goal state {} {}".format(goal_str, self.goal_state))
         self._client.go_to_state(self.goal_state, self.transition_cb)

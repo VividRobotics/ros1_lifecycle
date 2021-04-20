@@ -8,7 +8,7 @@
 import traceback
 import rospy
 
-from lifecycle.client import create_client
+from lifecycle.client import LifecycleClient
 from lifecycle.lifecycle_model import LifecycleModel, State
 from lifecycle.managed_node import ManagedNode
 from std_msgs.msg import Float32
@@ -39,7 +39,7 @@ class LmParent(ManagedNode):
         self.children = {}
 
         for key in sorted(children_ns.keys()):
-            self.children[key] = create_client(children_ns[key])
+            self.children[key] = LifecycleClient.create_client(children_ns[key])
 
         if not self._set_child_states(State.INACTIVE):
             return False

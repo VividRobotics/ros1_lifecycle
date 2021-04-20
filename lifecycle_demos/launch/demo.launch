@@ -5,6 +5,10 @@
   <group ns="lower" >
     <node name="child1" pkg="lifecycle_demos" type="lm_demo.py" output="screen" />
     <node name="child2" pkg="lifecycle_demos" type="lm_demo.py" output="screen" />
+    <node name="nodelet_child" pkg="nodelet" type="nodelet"
+      args="standalone lifecycle_demos/LifecycleDemo"
+      output="screen" >
+    </node>
   </group>
 
 </launch>

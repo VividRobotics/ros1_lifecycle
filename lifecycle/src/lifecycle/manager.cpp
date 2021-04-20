@@ -69,6 +69,8 @@ void LifecycleManager::setup(const ros::NodeHandle& nh, const std::string& frame
 
     state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 4, true);
     as_->registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
+
+    publishTransition(Transition::CLEANUP, ResultCode::SUCCESS);
 }
 
 LifecycleManager::~LifecycleManager() {

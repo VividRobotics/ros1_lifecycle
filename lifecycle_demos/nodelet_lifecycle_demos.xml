@@ -1,0 +1,9 @@
+<library path="lib/liblifecycle_demos">
+  <class name="lifecycle_demos/LifecycleDemo"
+    type="lifecycle_demos::LifecycleDemo"
+    base_class_type="nodelet::Nodelet">
+    <description>
+      Demonstrate a lifecycle managed nodelet
+    </description>
+  </class>
+</library>

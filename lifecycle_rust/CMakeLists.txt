@@ -4,16 +4,17 @@ project(lifecycle_rust)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   lifecycle_msgs
-  roslint
+  # roslint
 )
 
 find_package(Corrosion REQUIRED)
 corrosion_import_crate(MANIFEST_PATH Cargo.toml)
 
-roslint_rust()
+# Not ready for this
+# roslint_rust()
 
 catkin_package(
-   CATKIN_DEPENDS roslint
+  # CATKIN_DEPENDS roslint
 )
 
 function(rust_target target_name)

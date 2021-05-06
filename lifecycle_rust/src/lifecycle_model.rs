@@ -1,3 +1,4 @@
+use rosrust_msg::lifecycle_msgs::Lifecycle;
 use rosrust_msg::lifecycle_msgs::LifecycleGoal;
 
 enum State {
@@ -44,6 +45,10 @@ enum ResultCode {
     FAILURE = LifecycleGoal::EV_FAILURE as isize,
 }
 
+struct ManagedNode {
+
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -54,5 +59,17 @@ mod tests {
         println!("transition: {:?} {}", transition, transition.name());
         assert_eq!(&transition.name(), &"CLEANUP");
         assert_eq!(transition as isize, LifecycleGoal::EV_CLEANUP as isize);
+    }
+
+    #[test]
+    fn make_msg() {
+        let msg = Lifecycle {
+            header: Header::default(),
+            transition: Transition::ACTIVATE as i8,
+            end_state: State::ACTIVE as i8,
+            result_code: ResultCode::SUCCESS as i8,
+        };
+
+        assert_eq!(msg.end_state, State::ACTIVE as i8);
     }
 }

@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os_distro: [[ubuntu-20.04, noetic]]
+        os_distro: [[ros:noetic-ros-core, noetic]]
     runs-on: ${{ matrix.os_distro[0] }}
     env:
       ROS_CI_DESKTOP: "`lsb_release -cs`"  # e.g. [trusty|xenial|...]

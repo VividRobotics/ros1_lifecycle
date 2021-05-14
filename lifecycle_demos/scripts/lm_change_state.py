@@ -24,7 +24,7 @@ class LmChangeState(object):
                 rospy.signal_shutdown("Couldn't get server state, exiting")
                 return
             cur_state = self._client._server_state
-            if cur_state != None:
+            if cur_state is not None:
                 break
             rospy.sleep(0.2)
 

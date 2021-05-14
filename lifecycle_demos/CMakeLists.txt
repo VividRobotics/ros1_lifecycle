@@ -16,6 +16,8 @@ set(ROSLINT_CPP_OPTS
   "--extensions=cpp,h,hpp" "--filter=-whitespace/braces,-runtime/references"
 )
 roslint_cpp()
+
+set(ROSLINT_PYTHON_OPTS "1>&2")
 roslint_python()
 
 catkin_package(

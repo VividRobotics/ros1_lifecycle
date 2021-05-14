@@ -12,6 +12,7 @@ from lifecycle.lifecycle_model import LifecycleModel, State
 from lifecycle.managed_node import ManagedNode
 from std_msgs.msg import Float32
 
+
 class LmDemo(ManagedNode):
     def __init__(self):
         # TODO(lucasw) allow passing in a verbose flag that would do the loginfos

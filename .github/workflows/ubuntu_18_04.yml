@@ -30,6 +30,8 @@ jobs:
             sudo apt-get install -y python-rospkg
             sudo apt-get install -y python-wstool
             sudo apt-get install -y ros-$ROS_DISTRO-ros-base
+            # TODO(lucasw) the package.xml + rosdep isn't working for this
+            sudo apt-get install -y ros-$ROS_DISTRO-roslint
             source /opt/ros/$ROS_DISTRO/setup.bash
             # Prepare rosdep to install dependencies.
             sudo rosdep init

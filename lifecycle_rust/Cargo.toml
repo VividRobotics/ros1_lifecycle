@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 rosrust = { git = "https://github.com/lucasw/rosrust", branch = "noetic_aggregated" }
+rosrust_actionlib = { git = "https://github.com/lucasw/rosrust", branch = "noetic_aggregated" }
 rosrust_msg = { git = "https://github.com/lucasw/rosrust", branch = "noetic_aggregated" }

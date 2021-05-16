@@ -1,4 +1,9 @@
+use rosrust_actionlib::action_server::ServerSimpleGoalHandle;
+use rosrust_actionlib::ActionServer;
+use rosrust_msg::std_msgs::Header;
 use rosrust_msg::lifecycle_msgs::Lifecycle;
+use rosrust_msg::lifecycle_msgs::LifecycleAction;
+use rosrust_msg::lifecycle_msgs::LifecycleFeedback;
 use rosrust_msg::lifecycle_msgs::LifecycleGoal;
 
 enum State {
@@ -46,7 +51,6 @@ enum ResultCode {
 }
 
 struct ManagedNode {
-
 }
 
 #[cfg(test)]
@@ -71,5 +75,17 @@ mod tests {
         };
 
         assert_eq!(msg.end_state, State::ACTIVE as i8);
+    }
+
+    fn handler(gh: ServerSimpleGoalHandle<LifecycleAction>) {
+        println!("test");
+    }
+
+    #[test]
+    fn make_goal_feedback() {
+        // let goal = LifecycleGoal;
+        // let feedback = LifecycleFeedback;
+        // let server = ActionServer::<LifecycleAction>::new_simple("test_server", handler).unwrap();
+        // let action = Lifecycle::LifecycleAction;
     }
 }

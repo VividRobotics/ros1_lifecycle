@@ -7,9 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   # roslint
 )
 
-# TODO(lucasw) needed for kinetic
-set(CMAKE_CXX_STANDARD 17)
-
 find_package(Corrosion REQUIRED)
 corrosion_import_crate(MANIFEST_PATH Cargo.toml)
 

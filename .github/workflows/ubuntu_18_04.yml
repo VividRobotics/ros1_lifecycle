@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os_distro: [[ubuntu-16.04, kinetic], [ubuntu-18.04, melodic]]
+        os_distro: [[ubuntu-18.04, melodic]]
     runs-on: ${{ matrix.os_distro[0] }}
     env:
       ROS_CI_DESKTOP: "`lsb_release -cs`"  # e.g. [trusty|xenial|...]

@@ -5,8 +5,9 @@ use rosrust_msg::lifecycle_msgs::Lifecycle;
 use rosrust_msg::lifecycle_msgs::LifecycleAction;
 use rosrust_msg::lifecycle_msgs::LifecycleFeedback;
 use rosrust_msg::lifecycle_msgs::LifecycleGoal;
+use rosrust_msg::lifecycle_msgs::LifecycleResult;
 
-enum State {
+pub enum State {
     // Primary States
     UNCONFIGURED    = LifecycleGoal::PSTATE_UNCONFIGURED as isize,
     INACTIVE        = LifecycleGoal::PSTATE_INACTIVE as isize,
@@ -22,7 +23,7 @@ enum State {
 }
 
 #[derive(Debug)]
-enum Transition {
+pub enum Transition {
     CONFIGURE   = LifecycleGoal::EV_CONFIGURE as isize,
     CLEANUP     = LifecycleGoal::EV_CLEANUP as isize,
     ACTIVATE    = LifecycleGoal::EV_ACTIVATE as isize,
@@ -45,7 +46,7 @@ impl Transition {
     }
 }
 
-enum ResultCode {
+pub enum ResultCode {
     SUCCESS = LifecycleGoal::EV_SUCCESS as isize,
     FAILURE = LifecycleGoal::EV_FAILURE as isize,
 }
@@ -77,15 +78,10 @@ mod tests {
         assert_eq!(msg.end_state, State::ACTIVE as i8);
     }
 
-    fn handler(gh: ServerSimpleGoalHandle<LifecycleAction>) {
-        println!("test");
-    }
-
     #[test]
     fn make_goal_feedback() {
         // let goal = LifecycleGoal;
         // let feedback = LifecycleFeedback;
-        // let server = ActionServer::<LifecycleAction>::new_simple("test_server", handler).unwrap();
         // let action = Lifecycle::LifecycleAction;
     }
 }

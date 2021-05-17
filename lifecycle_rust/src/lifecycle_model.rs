@@ -22,6 +22,10 @@ pub enum State {
     ShuttingDown    = LifecycleGoal::TSTATE_SHUTTING_DOWN as isize,
 }
 
+impl Default for State {
+    fn default() -> Self { State::UNCONFIGURED }
+}
+
 #[derive(Debug)]
 pub enum Transition {
     CONFIGURE   = LifecycleGoal::EV_CONFIGURE as isize,
@@ -51,8 +55,8 @@ pub enum ResultCode {
     FAILURE = LifecycleGoal::EV_FAILURE as isize,
 }
 
-struct ManagedNode {
-}
+// struct ManagedNode {
+// }
 
 #[cfg(test)]
 mod tests {

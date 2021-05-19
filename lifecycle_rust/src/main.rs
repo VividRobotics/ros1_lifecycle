@@ -30,6 +30,8 @@ struct LifecycleNode {
     state: lifecycle_model::State,
     action_server: ActionServer::<LifecycleAction>,
     state_pub: rosrust::Publisher<Lifecycle>,
+    // gh_tx: crossbeam_channel::Sender<ServerSimpleGoalHandle<LifecycleAction>>,
+    gh_rx: crossbeam_channel::Receiver<ServerSimpleGoalHandle<LifecycleAction>>,
 }
 
 impl Default for LifecycleNode {
@@ -47,13 +49,29 @@ impl Default for LifecycleNode {
             state_pub.send(state_msg).unwrap();
         }
 
+        let (gh_tx, gh_rx) = crossbeam_channel::unbounded();
         /* TODO(lucasw) the handler is going to need to call activate etc. in the
          * object that holds onto this lifecycle node- so have it get passed in
          * as a parameter to default?
          */
-        fn handler(gh: ServerSimpleGoalHandle<LifecycleAction>) {
-            println!("action handler");
+        // fn handler(gh: ServerSimpleGoalHandle<LifecycleAction>) {
+        let handler = move |gh: ServerSimpleGoalHandle<LifecycleAction>| {
+            println!("action handler queued");
+            if let Err(err) = gh_tx.send(gh) {
+                if rosrust::is_ok() {
+                    eprintln!("{:?}", err);
+                    // let result = LifecycleResult { end_state: lifecycle_model::State::ACTIVE as i8 };
+                    // can't use gh now
+                    // gh.response().send_aborted();
+                }
+            }
+        };
+
+        /*
             let test = lifecycle_model::ResultCode::SUCCESS as i8;
+
+            // TODO(lucasw) provide channels into this handler that allow
+            // communication with the managed node
             let feedback = LifecycleFeedback {
                 intermediate_state: lifecycle_model::ResultCode::SUCCESS as i8,
                 result_code: lifecycle_model::State::Activating as i8,
@@ -63,11 +81,13 @@ impl Default for LifecycleNode {
             let result = LifecycleResult { end_state: lifecycle_model::State::ACTIVE as i8 };
             gh.response().result(result).send_succeeded();
         }
+        */
 
         LifecycleNode {
             state: lifecycle_model::State::default(),
             action_server: ActionServer::<LifecycleAction>::new_simple("~lifecycle", handler).unwrap(),
             state_pub,
+            gh_rx,
         }
     }
 }
@@ -77,7 +97,42 @@ struct ExampleNode {
     lifecycle_node: LifecycleNode,
 }
 
+impl ExampleNode
+{
+    fn run(&self) {
+        let rate = rosrust::rate(10.0);
+
+        while rosrust::is_ok() {
+            let possible_gh = self.lifecycle_node.gh_rx.try_recv();
+            if let Ok(gh) = possible_gh {
+                let transition = gh .goal().transition as isize;
+                println!("transition desired {}", transition);
+                /*
+                // TODO(lucasw) construct a Transition from the isize/i8
+                let transition = lifecycle_model::Transition::from_u32(transition as u32);
+                println!("transition desired {:?} {}", transition, transition.name());
+
+                match transition {
+                    lifecycle_model::Transition::CONFIGURE => {
+                        let result = LifecycleResult { end_state: lifecycle_model::State::INACTIVE as i8 };
+                        gh.response().result(result).send_succeeded();
+                    },
+                    lifecycle_model::Transition::ACTIVATE => {
+                        let result = LifecycleResult { end_state: lifecycle_model::State::ACTIVE as i8 };
+                        gh.response().result(result).send_succeeded();
+                    },
+                    _ => {
+                        gh.response().send_aborted();
+                    }
+                }
+                */
+            }
+        }
+    }
+}
+
 impl ManagedNode for ExampleNode {
+
     fn configure(&self) {
         println!("configuring");
     }
@@ -118,6 +173,7 @@ fn main() {
     */
 
     let managed_node = ExampleNode::default();
+    managed_node.run();
     /*
     managed_node.configure();
     managed_node.activate();
@@ -125,5 +181,5 @@ fn main() {
     managed_node.shutdown();
     managed_node.finalize();
     */
-    rosrust::spin();
+    // rosrust::spin();
 }

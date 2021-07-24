@@ -312,27 +312,27 @@ class TestManagedNode(unittest.TestCase):
                 super(MyNode,self).__init__(component_fqn)
 
             def _on_configure(self):
-                print '_on_configure'
+                print('_on_configure')
                 return True
 
             def _on_cleanup(self):
-                print '_on_cleanup '
+                print('_on_cleanup ')
                 return True
 
             def _on_activate(self):
-                print '_on_activate '
+                print('_on_activate ')
                 return True
 
             def _on_deactivate(self):
-                print '_on_deactivate '
+                print('_on_deactivate ')
                 return True
 
             def _on_shutdown(self):
-                print '_on_shutdown '
+                print('_on_shutdown ')
                 return True
 
             def _on_error(self, ex):
-                print '_on_error '
+                print('_on_error ')
                 return True
 
         ROSINIT()
@@ -362,7 +362,7 @@ class TestManagedNode(unittest.TestCase):
                 super(ActiveNode,self).__del__()
 
             def _on_activate(self):
-                print '_on_activate '
+                print('_on_activate ')
                 return True
 
         class SimpleNode(ManagedNode):

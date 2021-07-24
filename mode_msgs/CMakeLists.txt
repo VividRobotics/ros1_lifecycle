@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(mode_msgs)
 
-find_package(catkin REQUIRED COMPONENTS message_generation actionlib_msgs)
+find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
+  message_generation
+  std_msgs
+)
 
 ## Generate messages in the 'msg' folder
 add_message_files(
@@ -33,7 +37,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES mode_msgs
-  CATKIN_DEPENDS std_msgs actionlib_msgs
+  CATKIN_DEPENDS actionlib_msgs message_runtime std_msgs
 #  DEPENDS system_lib
 )
 

@@ -34,5 +34,6 @@ generate_messages(
 )
 
 catkin_package(
+  CATKIN_DEPENDS actionlib_msgs message_runtime std_msgs
 )
 

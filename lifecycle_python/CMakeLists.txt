@@ -98,7 +98,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lifecycle_python
-  CATKIN_DEPENDS actionlib lifecycle_msgs rospy
+  CATKIN_DEPENDS actionlib actionlib_msgs lifecycle_msgs rospy
 #  DEPENDS system_lib
 )
 
@@ -141,11 +141,12 @@ catkin_package(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-#install(PROGRAMS
+install(PROGRAMS
+  scripts/change_lifecycle.py
 #  test/test_lifecycle_client.py
 #  test/test_manager.py
-#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS lifecycle_python lifecycle_python_node

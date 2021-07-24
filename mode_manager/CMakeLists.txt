@@ -4,7 +4,12 @@ project(mode_manager)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS mode_msgs lifecycle_python lifecycle_msgs)
+find_package(catkin REQUIRED COMPONENTS
+  lifecycle_msgs
+  lifecycle_python
+  mode_msgs
+  rospy
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -98,7 +103,7 @@ find_package(catkin REQUIRED COMPONENTS mode_msgs lifecycle_python lifecycle_msg
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES mode_manager
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS lifecycle_msgs mode_msgs
 #  DEPENDS system_lib
 )
 
@@ -141,10 +146,13 @@ catkin_package(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+  scripts/change_mode.py
+  # TODO(lucasw) why are these in src instead of scripts?
+  src/check_config.py
+  src/manager_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS mode_manager mode_manager_node

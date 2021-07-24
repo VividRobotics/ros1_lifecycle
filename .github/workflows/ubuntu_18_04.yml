@@ -63,6 +63,12 @@ jobs:
           source /opt/ros/$ROS_DISTRO/setup.bash
           catkin build --no-status
           source devel/setup.bash
+      - name: run tests
+        run: |
+          cd catkin_ws
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin build --catkin-make-args run_tests
+          catkin_test_results
       - name: test devel imports and example roslaunch
         run: |
           cd catkin_ws

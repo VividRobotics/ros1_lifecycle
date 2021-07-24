@@ -24,7 +24,9 @@ jobs:
             sudo apt-get install dpkg
       - name: Install ROS basic packages
         run: |
-            sudo apt-get install -y catkin-lint
+            sudo apt-get install -y python-pip
+            sudo pip install catkin-lint
+            # sudo apt-get install -y catkin-lint
             sudo apt-get install -y python-catkin-pkg
             sudo apt-get install -y python-catkin-tools
             sudo apt-get install -y python-rosdep

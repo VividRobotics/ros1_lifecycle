@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from enum import Enum
 import actionlib
 from lifecycle_msgs.msg import LifecycleGoal, LifecycleAction, LifecycleResult, Lifecycle
 
-class State(object):
+class State(int, Enum):
     # primary states
     UNCONFIGURED    = LifecycleGoal.PSTATE_UNCONFIGURED
     INACTIVE        = LifecycleGoal.PSTATE_INACTIVE
@@ -17,7 +18,7 @@ class State(object):
     Deactivating    = LifecycleGoal.TSTATE_DEACTIVATING
     ShuttingDown    = LifecycleGoal.TSTATE_SHUTTING_DOWN
 
-class Transition(object):
+class Transition(int, Enum):
     CONFIGURE  = LifecycleGoal.EV_CONFIGURE
     CLEANUP    = LifecycleGoal.EV_CLEANUP
     ACTIVATE   = LifecycleGoal.EV_ACTIVATE

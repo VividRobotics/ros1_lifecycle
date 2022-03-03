@@ -34,6 +34,7 @@ class ManagedNode(object):
         self._lm.set_transition_callback(Transition.DEACTIVATE, self._on_deactivate)
         self._lm.set_transition_callback(Transition.SHUTDOWN, self._on_shutdown)
         self._lm.set_error_cb(self._on_error)
+        self._lm.set_state_change_cb(self._on_state_change)
         #start the action server
         self._lm.start()
 
@@ -61,9 +62,14 @@ class ManagedNode(object):
     def _on_error(self, ex):
         return False
 
+    def _on_state_change(self, state):
+        pass
 
     # the above are overloaded with the actual state changing code,
     # below just changes state appropriately
+    def handle_exception(self, ex):
+        self._lm.raise_error(ex)
+
     def configure(self):
         if self._lm.get_current_state() == State.UNCONFIGURED:
             self._lm.configure()

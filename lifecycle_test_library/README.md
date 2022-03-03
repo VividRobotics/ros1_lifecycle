@@ -1,7 +1,7 @@
 ## Automated Test Library for Lifecycle Manager
 
 ### Concept
-This library provides methods to test your nodes configured by LifecycleManager. 
+This library provides methods to test your nodes configured by LifecycleManager.
 
 #### Transition Test
 The user node is transitioned between various states multiple times to check the robustness of the state changes.
@@ -39,21 +39,21 @@ For example please see: lifecycle_test_library/examples/
 The configuration file is a YAML file which looks as follows:
 
 ```yaml
-node_name       : "Example_Node"
+node_name       : "example_node"
 states          : ['INACTIVE', 'UNCONFIGURED', 'INACTIVE', 'ACTIVE', 'INACTIVE', 'UNCONFIGURED', 'ACTIVE', 'UNCONFIGURED']
 timeout         : 3
 delay           : 1
-publications    : ['/Example_Node/chatter']
+publications    : ['/example_node/chatter']
 publishing_hz   : [10]
 subscriptions   : ['/noise']
-services        : ['/Example_Node/add_two_ints']
+services        : ['/example_node/add_two_ints']
 ```
 
 #### node_name
 Name of your node that has to be tested
 
 #### states
-The sequence of the states that the node has to be tested for transitioning. For the state code lookup lifecycle_msg. 
+The sequence of the states that the node has to be tested for transitioning. For the state code lookup lifecycle_msg.
 
 #### timeout
 Maximum duration in seconds the node has to take to make the transition
@@ -74,7 +74,7 @@ The names of the Subscriptions by the node
 The services offered by the node
 
 ### Launch
-An example launch file: 
+An example launch file:
 ```
 <launch>
     <node pkg="lifecycle_test_library" type="lifecycle_node_test.py" name="Test_Node" output="screen" required="true">

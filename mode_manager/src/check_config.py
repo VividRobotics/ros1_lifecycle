@@ -21,7 +21,7 @@ from voluptuous import Schema, Required, All, Length, Range
 
 components_schema = Schema(
     {'configs': {
-        
+
     }}
 )
 

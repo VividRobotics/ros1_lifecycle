@@ -20,61 +20,73 @@
 #include "lifecycle/lifecycle_model.h"
 #include "lifecycle/broadcaster.h"
 #include <boost/format.hpp>
+#include <memory>
 #include <ros/callback_queue_interface.h>
 
 namespace ros { namespace lifecycle {
 
 using std::make_pair;
-LifecycleManager::LifecycleManager(const ros::NodeHandle& nh) :
-        nh_(nh),
-        as_(nh, LIFECYCLE_ACTION_NAME, false),
-        current_(UNCONFIGURED),
-        lm_broadcaster_(nh){
+LifecycleManager::LifecycleManager(const ros::NodeHandle& nh, const std::string& frame_id)
+{
+  setup(nh, frame_id);
+}
+
+void LifecycleManager::setup(const ros::NodeHandle& nh, const std::string& frame_id)
+{
+    nh_ = nh;
+    lm_broadcaster_ = std::make_unique<LmEventBroadcaster>(nh);
+    as_ = std::make_unique<LifecycleActionServer>(nh, LIFECYCLE_ACTION_NAME, false);
+    frame_id_ = frame_id;
+
     primary_steps_[make_pair(UNCONFIGURED, CONFIGURE)]      = Configuring;
     primary_steps_[make_pair(UNCONFIGURED, SHUTDOWN)]       = ShuttingDown;
-    
+
     primary_steps_[make_pair(INACTIVE, CLEANUP)]            = CleaningUp;
     primary_steps_[make_pair(INACTIVE, ACTIVATE)]           = Activating;
     primary_steps_[make_pair(INACTIVE, SHUTDOWN)]           = ShuttingDown;
     primary_steps_[make_pair(INACTIVE, ERROR)]              = ErrorProcessing;
-        
+
     primary_steps_[make_pair(ACTIVE, SHUTDOWN)]             = ShuttingDown;
     primary_steps_[make_pair(ACTIVE, DEACTIVATE)]           = Deactivating;
     primary_steps_[make_pair(ACTIVE, ERROR)]                = ErrorProcessing;
-        
+
     secondary_steps_[make_pair(Configuring, SUCCESS)]       = INACTIVE;
     secondary_steps_[make_pair(Configuring, FAILURE)]       = UNCONFIGURED;
-    
+
     secondary_steps_[make_pair(CleaningUp, SUCCESS)]        = UNCONFIGURED; // must not fail
-    
+
     secondary_steps_[make_pair(Activating, SUCCESS)]        = ACTIVE;
     secondary_steps_[make_pair(Activating, FAILURE)]        = INACTIVE;
-    
+
     secondary_steps_[make_pair(ShuttingDown, SUCCESS)]      = FINALIZED; // must not fail
 
     secondary_steps_[make_pair(Deactivating, SUCCESS)]      = INACTIVE; // must not fail
 
     secondary_steps_[make_pair(ErrorProcessing, SUCCESS)]   = UNCONFIGURED;
     secondary_steps_[make_pair(ErrorProcessing, FAILURE)]   = FINALIZED;
-    
+
     setTransitionCallback(ERROR, boost::bind(&LifecycleManager::activeEx_cb, this) );
 
-    state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 1, true);
-    as_.registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
+    state_pub_ = nh_.advertise<lifecycle_msgs::Lifecycle>(LIFECYCLE_STATE_TOPIC, 4, true);
+    as_->registerGoalCallback(boost::bind(&LifecycleManager::goalCb, this));
+
+    publishTransition(Transition::CLEANUP, ResultCode::SUCCESS);
 }
 
 LifecycleManager::~LifecycleManager() {
-    
+
 }
 
 void LifecycleManager::publishTransition(const Transition& transition, const ResultCode& result_code) {
     lifecycle_msgs::Lifecycle msg;
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = frame_id_;
     msg.transition = transition;
     msg.end_state = current_;
     msg.result_code = result_code;
-    
+
     state_pub_.publish(msg);
-    lm_broadcaster_.send_lm_event(msg);
+    lm_broadcaster_->send_lm_event(msg);
 }
 
 namespace {
@@ -108,10 +120,11 @@ using namespace ros;
 }
 
 void LifecycleManager::start() {
-    as_.start();
-    bool lifecycle_enabled = false;
-    nh_.param(PARAM_LIFECYCLE_MANAGEMENT, lifecycle_enabled, false);
+    as_->start();
+    bool lifecycle_enabled = true;
+    nh_.param(PARAM_LIFECYCLE_MANAGEMENT, lifecycle_enabled, true);
     if(!lifecycle_enabled) {
+      ROS_INFO_STREAM("not using lifecycle management");
     	// schedule a callback that will activate this node in the absence of
     	// a manager
     	nh_.getCallbackQueue()->addCallback(boost::make_shared<ActivationCallback>(this));
@@ -147,19 +160,19 @@ void LifecycleManager::setTransitionCallback(Transition tr, transitionCb cb) {
 }
 
 void LifecycleManager::goalCb() {
-    lifecycle_msgs::LifecycleGoalConstPtr goal = as_.acceptNewGoal();
+    lifecycle_msgs::LifecycleGoalConstPtr goal = as_->acceptNewGoal();
     lifecycle_msgs::LifecycleResult result;
     try {
         if (handleTransition(static_cast<Transition>(goal->transition))) {
             result.end_state = getCurrentState();
-            as_.setSucceeded(result, "goal state reached okay");
+            as_->setSucceeded(result, "goal state reached okay");
         } else {
             result.end_state = getCurrentState();
-            as_.setAborted(result, "transition failed");
+            as_->setAborted(result, "transition failed");
         }
     } catch(const IllegalTransitionException& ite) {
         result.end_state = getCurrentState();
-        as_.setAborted(result, "requested transition is not a valid lifecycle transition");
+        as_->setAborted(result, "requested transition is not a valid lifecycle transition");
     }
 }
 
@@ -180,13 +193,13 @@ bool LifecycleManager::handleTransition(const Transition& transition) {
             handleSecondaryStep(make_pair(current_, FAILURE));
         }
     }
-    
+
     if(result) {
         publishTransition(transition, SUCCESS);
     } else {
         publishTransition(transition, FAILURE);
     }
-    
+
     return result;
 }
 
@@ -208,7 +221,7 @@ bool LifecycleManager::handlePrimaryStep(const PrimaryInput& input) {
         throw IllegalTransitionException(input);
     }
 }
-  
+
 bool LifecycleManager::handleSecondaryStep(const SecondaryInput& input) {
     SecondaryStepMap::const_iterator secondary_steps_iter = secondary_steps_.find(input);
     if(secondary_steps_iter != secondary_steps_.end()) {

@@ -19,7 +19,7 @@ from __future__ import print_function
 
 import rospy
 from . import BaseConfig
-from lifecycle.client import LifecycleClient, create_client
+from lifecycle.client import LifecycleClient
 from lifecycle_msgs.msg import LifecycleGoal
 from mode_manager.config_action import ConfigAction
 
@@ -49,7 +49,7 @@ def create_ros2_config_actions(client):
 
 
 def create_ros2_lifecycle(component_fqn):
-    client = create_client(component_fqn)
+    client = LifecycleClient.create_client(component_fqn)
     return create_ros2_config_actions(client)
 
 

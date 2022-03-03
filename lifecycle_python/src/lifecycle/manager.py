@@ -6,16 +6,16 @@ import rospy
 import actionlib
 
 from lifecycle_msgs.msg import LifecycleGoal, LifecycleAction, LifecycleResult, Lifecycle
-from lifecycle_model import State, Transition, Result_Code, LifecycleModel
+from lifecycle.lifecycle_model import State, Transition, Result_Code, LifecycleModel
 from lifecycle.broadcaster import LmEventBroadcaster
 
 LIFECYCLE_ACTION_NAME = "lifecycle"
 LIFECYCLE_STATE_TOPIC = "lifecycle_state"
-    
+
 class IllegalTransitionException(Exception):
     def __init__(self, arg):
         self.msg = 'IllegalTransitionException current state =' + str(arg[0]) + ', transition requested =' +str(arg[1])
-        
+
 class LifecycleCbException(Exception):
     """
     Thrown on invalid callback function
@@ -34,19 +34,32 @@ def check_args(fn, *args):
         return False
 
 class LifecycleManager(object):
-    def __init__(self, component_fqn):
+    def __init__(self, component_fqn, frame_id="map"):
+        self.frame_id = frame_id
         self._callbacks = {}
-        self._current = State.UNCONFIGURED
+        self._current = None
         '''Variable to store the exception occurred during ACTIVE state'''
         self._active_ex = Exception('None')
         '''A lambda expression which raises an exception for the ERROR transition call back'''
         self.set_transition_callback(Transition.ERROR, lambda : (_ for _ in ()).throw(self._active_ex))
         self._as = actionlib.SimpleActionServer(component_fqn + "/" + LIFECYCLE_ACTION_NAME, LifecycleAction, self._goal_cb, False)
         self.state_pub_ = rospy.Publisher(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, queue_size = 10, latch=True)
-        self.lm_broadcaster = LmEventBroadcaster(component_fqn);
-        
+        self.lm_broadcaster = LmEventBroadcaster(component_fqn)
+        self.state_change_cb = None
+        # announce that the node is online
+        # rospy.sleep(0.2)
+        self._set_current_state(State.UNCONFIGURED)
+        self._publish_transition(0, Result_Code.SUCCESS)
+
     def __del__(self):
-        self._as.__del__()
+        # Can't rospy.loginfo from a del
+        pass
+        # TODO(lucasw) action servers don't get shut down very cleanly
+        # self._as.__del__()
+
+    def _set_current_state(self, current_state):
+        self._current = current_state
+        self._report_state_change()
 
     def _publish_transition(self, transition, result_code):
         """
@@ -57,15 +70,21 @@ class LifecycleManager(object):
         :type transition: Transition
         :param result_code: the result of the transition
         :type result_code: Result_Code
-        :return: 
+        :return:
         """
         msg = Lifecycle()
+        msg.header.stamp = rospy.Time.now()
+        msg.header.frame_id = self.frame_id
         msg.transition = transition
         msg.end_state = self._current
         msg.result_code = result_code
-        
+
         self.state_pub_.publish(msg)
         self.lm_broadcaster.sendLmEvent(msg)
+
+    def _report_state_change(self):
+        if self.state_change_cb is not None:
+            self.state_change_cb(self._current)
 
     def start(self):
         """
@@ -78,7 +97,7 @@ class LifecycleManager(object):
     def set_transition_callback(self, tr, cb):
         """
         Sets the callback functions of the respective transition
-        :param tr : transition 
+        :param tr : transition
         :type tr: Transition
         :param cb : callback function
         :type cb : function
@@ -126,12 +145,12 @@ class LifecycleManager(object):
                 self._handle_secondary_step((self._current, Result_Code.SUCCESS))
             else:
                 self._handle_secondary_step((self._current, Result_Code.FAILURE))
-                
+
         if(result_var != False):
             self._publish_transition(transition, Result_Code.SUCCESS)
         else :
             self._publish_transition(transition, Result_Code.FAILURE)
-            
+
         return result_var
 
     def _handle_primary_step(self, input_var):
@@ -143,7 +162,7 @@ class LifecycleManager(object):
         """
         try:
             #this statement may throw an exception if key is not found
-            self._current = LifecycleModel.PRIMARY_STEPS[input_var]
+            self._set_current_state(LifecycleModel.PRIMARY_STEPS[input_var])
             try:
                 #this statement may throw an exception if key is not found
                 cb_func = self._callbacks[input_var]
@@ -155,7 +174,7 @@ class LifecycleManager(object):
                 return True
         except KeyError:
             raise IllegalTransitionException(input_var)
-            
+
     def _handle_secondary_step(self, input_var):
         """
         Handles the second step of the transition i.e. from a transitional state to a primary state.
@@ -164,7 +183,7 @@ class LifecycleManager(object):
         :return result_var: bool value to indicate success or failure
         """
         try:
-            self._current = LifecycleModel.SECONDARY_STEPS[input_var]
+            self._set_current_state(LifecycleModel.SECONDARY_STEPS[input_var])
             return True
         except KeyError:
             raise IllegalTransitionException(input_var)
@@ -176,7 +195,7 @@ class LifecycleManager(object):
         :type ex: Exception
         :return : bool value to indicate success or failure
         """
-        self._current = State.ErrorProcessing
+        self._set_current_state(State.ErrorProcessing)
         try :
             return self.onError_(ex)
         except Exception as ex:
@@ -186,7 +205,12 @@ class LifecycleManager(object):
         if cb is None or not check_args(cb, Exception):
             raise LifecycleCbException("The error callback %s must be callable with one argument" %cb)
         self.onError_ = cb
-    
+
+    def set_state_change_cb(self, cb):
+        if cb is None or not check_args(cb, Exception):
+            raise LifecycleCbException("The state change callback %s must be callable with one argument" %cb)
+        self.state_change_cb = cb
+
     def _isPrimaryState(self, state):
         """
         checks if the given state is Primary
@@ -195,7 +219,7 @@ class LifecycleManager(object):
         :return : bool value to indicate if the given state is primary state
         """
         return((state == State.UNCONFIGURED) or (state == State.INACTIVE) or (state == State.ACTIVE) or (state == State.FINALIZED))
-        
+
     def raise_error(self, ex):
         """
         Handles the error raised during any state of the node
@@ -208,7 +232,7 @@ class LifecycleManager(object):
             return self._handle_transition(Transition.ERROR)
         else:
             return self._handle_error_processing(ex)
-    
+
     def configure(self):
         return self._handle_transition(Transition.CONFIGURE)
 

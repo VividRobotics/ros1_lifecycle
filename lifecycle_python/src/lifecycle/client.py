@@ -23,7 +23,7 @@ from actionlib.action_client import CommState
 from actionlib_msgs.msg import GoalStatus
 
 from lifecycle_msgs.msg import LifecycleGoal, LifecycleAction, Lifecycle
-from lifecycle_model import LifecycleModel
+from lifecycle.lifecycle_model import LifecycleModel, State
 
 LIFECYCLE_ACTION_NAME = "lifecycle"
 LIFECYCLE_STATE_TOPIC = "lifecycle_state"
@@ -130,8 +130,53 @@ class LifecycleClient(object):
         :return:
         """
         self._client = client
-        self._server_state = LifecycleGoal.PSTATE_UNCONFIGURED
+        self._server_state = None  # LifecycleGoal.PSTATE_UNCONFIGURED
         self._handle = None
+
+    # TODO(lucasw) change the testing method so this can be the regular constructor?
+    # It is valuable to be able to supply a non action client but with the same interface
+    # for testing
+    @staticmethod
+    def create_client(component_fqn=None):
+        if component_fqn != None and component_fqn != "":
+            component_fqn += "/"
+        else:
+            component_fqn = ""
+        action_path = component_fqn + LIFECYCLE_ACTION_NAME
+        state_path = component_fqn + LIFECYCLE_STATE_TOPIC
+        rospy.logdebug("Creating lifecycle client {} {} {}".format(rospy.get_namespace(), action_path, state_path))
+
+        action_client = actionlib.action_client.ActionClient(action_path, LifecycleAction)
+        rv = action_client.wait_for_server(timeout=rospy.Duration(1.0))
+        rospy.logdebug("Connected to action client {}".format(rv))
+        lc_client = LifecycleClient(action_client)
+
+        rospy.Subscriber(state_path, Lifecycle, lc_client.state_cb)
+        return lc_client
+
+    def completion_cb(self, result):
+        self._state_achieved = result
+
+    # TODO(lucasw) not sure about having this here, but convenient for now
+    def go_to_state_timed(self, target_state, timeout=2.0):
+        # TODO(lucasw) if this outer function exits before the inner callback
+        # is called, but then it does get called, what happens?
+        self._state_achieved = None
+        # TODO(lucasw) is there a way to make this work?  It seems to lock up
+        # def completion_cb(result):
+        #     state_achieved = result
+        # completion_cb = lambda result: state_achieved = result
+        # self.go_to_state(target_state, completion_cb)
+        self.go_to_state(target_state, self.completion_cb)
+        cur = rospy.Time.now()
+
+        while True:
+            rospy.sleep(0.1)
+            if self._state_achieved is not None:
+                return self._state_achieved
+            elapsed = rospy.Time.now() - cur
+            if elapsed.to_sec() > timeout:
+                return False
 
     def go_to_state(self, target_state, completion_cb):
         """
@@ -142,9 +187,14 @@ class LifecycleClient(object):
         :return:
         """
         self.completion_cb_ = completion_cb
-        
-        # if we're already in the target state, do nothing
+
+        if self._server_state is None:
+            rospy.logerr("Haven't received server state yet")
+            completion_cb(False)
+            return
+
         if target_state == self._server_state:
+            rospy.loginfo("already in the target state, do nothing {}".format(target_state))
             completion_cb(True)
             return
 
@@ -170,17 +220,31 @@ class LifecycleClient(object):
         :type msg: Lifecycle
         :return:
         """
+        if self._server_state is None:
+            rospy.loginfo("first state {}".format(msg.end_state))
         self._server_state = msg.end_state
-    
+
     def _transition_completion_cb(self, result):
         self._handle = None
         self.completion_cb_(result)
 
+    def configure(self):
+        self.go_to_state(State.CONFIGURED)
 
-def create_client(component_fqn):
-    action_client = actionlib.action_client.ActionClient(component_fqn + "/" + LIFECYCLE_ACTION_NAME,
-                                                  LifecycleAction)
-    action_client.wait_for_server(timeout=rospy.Duration(1.0))
-    lc_client = LifecycleClient(action_client)
-    rospy.Subscriber(component_fqn + "/" + LIFECYCLE_STATE_TOPIC, Lifecycle, lc_client.state_cb)
-    return lc_client
+    def activate(self):
+        self.go_to_state(State.ACTIVE)
+
+    def deactivate(self):
+        self.go_to_state(State.INACTIVE)
+
+    def cleanup(self):
+        self.go_to_state(State.INACTIVE)
+
+    def shutdown(self):
+        self.go_to_state(State.UNCONFIGURED)
+
+    def get_state(self):
+        return self._lm.get_current_state()
+
+    def get_state_str(self):
+        return LifecycleModel.STATE_TO_STR[self.get_state()]

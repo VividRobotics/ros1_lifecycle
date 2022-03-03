@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(mode_msgs)
 
 find_package(catkin REQUIRED COMPONENTS message_generation actionlib_msgs)
@@ -19,7 +19,7 @@ add_service_files(
 
 ## Generate actions in the 'action' folder
 add_action_files(
-  FILES 
+  FILES
   ModeChange.action
 #   Action2.action
 )

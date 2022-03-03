@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(lifecycle)
 
 ## Find catkin macros and libraries
@@ -6,12 +6,22 @@ project(lifecycle)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
         COMPONENTS
-        roscpp 
-        rostest 
-        rosunit 
+        roscpp
+        # roslint
+        rostest
+        rosunit
         actionlib
         lifecycle_msgs
 )
+
+set(CMAKE_CXX_STANDARD 17)
+
+# set(
+#  ROSLINT_CPP_OPTS
+#  "--extensions=cpp,h,hpp" "--filter=-whitespace/braces"
+# )
+# roslint_cpp()
+# roslint_python()
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)
@@ -118,15 +128,15 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-#add_definitions(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Declare a C++ library
 add_library(lifecycle
    src/${PROJECT_NAME}/manager.cpp
    src/${PROJECT_NAME}/managed_node.cpp
    src/${PROJECT_NAME}/lifecycle_model.cpp
-   src/${PROJECT_NAME}/broadcaster.cpp 
-   src/${PROJECT_NAME}/client.cpp 
+   src/${PROJECT_NAME}/broadcaster.cpp
+   src/${PROJECT_NAME}/client.cpp
 )
 
 ## Add cmake target dependencies of the library

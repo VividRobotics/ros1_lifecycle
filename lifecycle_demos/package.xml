@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>lifecycle_demos</name>
+  <version>0.0.1</version>
+  <description>Demo C++ and python lifecycle managed nodes, as well as control of those nodes</description>
+
+  <maintainer email="wsacul@gmamil.com">Lucas Walter</maintainer>
+
+  <license>ASL2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>lifecycle</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>roslint</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <exec_depend>lifecycle</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>roslint</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <export>
+    <nodelet plugin="${prefix}/nodelet_lifecycle_demos.xml" />
+  </export>
+</package>

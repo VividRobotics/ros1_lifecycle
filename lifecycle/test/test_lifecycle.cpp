@@ -47,7 +47,7 @@ class ActiveNode: public ManagedNode
 {
     public:
         ActiveNode(const ros::NodeHandle& nh): ManagedNode(nh) { };
-    
+
     protected:
         bool onActivate() { return true;};
 };
@@ -97,7 +97,7 @@ TEST(LifecycleManager, through_action_client)
     INIT
     LifecycleManager lm(nh);
     lm.start();
-    
+
     SimpleActionClient<LifecycleAction> client(LIFECYCLE_ACTION);
     //A spin thread is required for the client!!!
     boost::thread spin_thread(&spinThread);
@@ -108,7 +108,7 @@ TEST(LifecycleManager, through_action_client)
     check_goal(lm, client, LifecycleGoal::EV_CONFIGURE, INACTIVE);
     check_goal(lm, client, LifecycleGoal::EV_ACTIVATE, ACTIVE);
     check_goal(lm, client, LifecycleGoal::EV_SHUTDOWN, FINALIZED);
-    
+
     // shutdown the node and join the thread back before exiting
     ros::shutdown();
     spin_thread.join();
@@ -236,10 +236,10 @@ TEST(LifecycleManager, test_publishTransition)
     INIT
     LifecycleManager lm(nh);
     lm.start();
-       
+
     ros::Subscriber sub = nh.subscribe(LIFECYCLE_STATE_TOPIC, 1000, subCb);
     boost::thread spin_thread(&spinThread);
-    
+
     lm.configure();
     ASSERT_EQ(INACTIVE, lm.getCurrentState());
     lm.cleanup();
@@ -262,23 +262,23 @@ TEST(LifecycleManager, test_simulateErrorInActive)
     LifecycleManager lm(nh);
     std::exception ex;
     lm.setErrorCb(errorTrueCb);
-    
+
     lm.configure();
     ASSERT_EQ(INACTIVE, lm.getCurrentState());
     lm.activate();
     ASSERT_EQ(ACTIVE, lm.getCurrentState());
     lm.raiseError(ex);
     ASSERT_EQ(UNCONFIGURED, lm.getCurrentState());
-    
+
     lm.setErrorCb(errorFalseCb);
-    
+
     lm.configure();
     ASSERT_EQ(INACTIVE, lm.getCurrentState());
     lm.activate();
     ASSERT_EQ(ACTIVE, lm.getCurrentState());
     lm.raiseError(ex);
     ASSERT_EQ(FINALIZED, lm.getCurrentState());
-    
+
 }
 
 TEST(LifecycleManager, test_simulateErrorInInactive)
@@ -287,19 +287,19 @@ TEST(LifecycleManager, test_simulateErrorInInactive)
     LifecycleManager lm(nh);
     std::exception ex;
     lm.setErrorCb(errorTrueCb);
-    
+
     lm.configure();
     ASSERT_EQ(INACTIVE, lm.getCurrentState());
     lm.raiseError(ex);
     ASSERT_EQ(UNCONFIGURED, lm.getCurrentState());
-    
+
     lm.setErrorCb(errorFalseCb);
-    
+
     lm.configure();
     ASSERT_EQ(INACTIVE, lm.getCurrentState());
     lm.raiseError(ex);
     ASSERT_EQ(FINALIZED, lm.getCurrentState());
-    
+
 }
 
 void send_goal(LifecycleClient& client, int transition)
@@ -316,13 +316,13 @@ TEST(ManagedNode, test_defaultCleanup)
     INIT
     boost::thread spin_thread(&spinThread);
     ActiveNode test_node(nh);
-    
+
     SimpleActionClient<LifecycleAction> client(LIFECYCLE_ACTION);
     ASSERT_TRUE(client.waitForServer(ros::Duration(2)));
 
     send_goal(client, LifecycleGoal::EV_CONFIGURE);
     ASSERT_EQ(INACTIVE, client.getResult()->end_state);
-    
+
     send_goal(client, LifecycleGoal::EV_CLEANUP);
     ASSERT_EQ(FINALIZED, client.getResult()->end_state);
 
@@ -336,16 +336,16 @@ TEST(ManagedNode, test_defaultDeactivate)
     INIT
     boost::thread spin_thread(&spinThread);
     ActiveNode test_node(nh);
-    
+
     SimpleActionClient<LifecycleAction> client(LIFECYCLE_ACTION);
     ASSERT_TRUE(client.waitForServer(ros::Duration(2)));
 
     send_goal(client, LifecycleGoal::EV_CONFIGURE);
     ASSERT_EQ(INACTIVE, client.getResult()->end_state);
-    
+
     send_goal(client, LifecycleGoal::EV_ACTIVATE);
     ASSERT_EQ(ACTIVE, client.getResult()->end_state);
-    
+
     send_goal(client, LifecycleGoal::EV_DEACTIVATE);
     ASSERT_EQ(FINALIZED, client.getResult()->end_state);
 
@@ -353,22 +353,22 @@ TEST(ManagedNode, test_defaultDeactivate)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 TEST(ManagedNode, test_defaultShutdown)
 {
     INIT
     boost::thread spin_thread(&spinThread);
     ActiveNode test_node(nh);
-    
+
     SimpleActionClient<LifecycleAction> client(LIFECYCLE_ACTION);
     ASSERT_TRUE(client.waitForServer(ros::Duration(2)));
 
     send_goal(client, LifecycleGoal::EV_CONFIGURE);
     ASSERT_EQ(INACTIVE, client.getResult()->end_state);
-    
+
     send_goal(client, LifecycleGoal::EV_ACTIVATE);
     ASSERT_EQ(ACTIVE, client.getResult()->end_state);
-    
+
     send_goal(client, LifecycleGoal::EV_SHUTDOWN);
     ASSERT_EQ(FINALIZED, client.getResult()->end_state);
 
@@ -376,7 +376,7 @@ TEST(ManagedNode, test_defaultShutdown)
     ros::shutdown();
     spin_thread.join();
 }
-    
+
 int main(int argc, char** argv)
 {
     testing::InitGoogleTest(&argc, argv);

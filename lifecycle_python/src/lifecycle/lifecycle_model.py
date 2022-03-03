@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from enum import Enum
 import actionlib
 from lifecycle_msgs.msg import LifecycleGoal, LifecycleAction, LifecycleResult, Lifecycle
 
-class State(object):
+class State(int, Enum):
     # primary states
     UNCONFIGURED    = LifecycleGoal.PSTATE_UNCONFIGURED
     INACTIVE        = LifecycleGoal.PSTATE_INACTIVE
@@ -16,22 +17,22 @@ class State(object):
     Activating      = LifecycleGoal.TSTATE_ACTIVATING
     Deactivating    = LifecycleGoal.TSTATE_DEACTIVATING
     ShuttingDown    = LifecycleGoal.TSTATE_SHUTTING_DOWN
-    
-class Transition(object):
+
+class Transition(int, Enum):
     CONFIGURE  = LifecycleGoal.EV_CONFIGURE
     CLEANUP    = LifecycleGoal.EV_CLEANUP
     ACTIVATE   = LifecycleGoal.EV_ACTIVATE
     DEACTIVATE = LifecycleGoal.EV_DEACTIVATE
     SHUTDOWN   = LifecycleGoal.EV_SHUTDOWN
     ERROR      = LifecycleGoal.EV_ERROR
-    
+
 class Result_Code(object):
     SUCCESS    = LifecycleGoal.EV_SUCCESS
     FAILURE    = LifecycleGoal.EV_FAILURE
 
 class LifecycleModel(object):
     '''Contains all the dictionary & list items which define the model of the managed_node lifecycle'''
-    
+
     '''Defines all the transitions between a primary state to a secondary state'''
     PRIMARY_STEPS = {
         (State.UNCONFIGURED, Transition.CONFIGURE)  : State.Configuring,
@@ -47,12 +48,12 @@ class LifecycleModel(object):
         (State.ACTIVE, Transition.DEACTIVATE)       : State.Deactivating,
         (State.ACTIVE, Transition.ERROR)            : State.ErrorProcessing
         }
-    
+
     '''Defines all the transitions between a secondary state to a primary state'''
     SECONDARY_STEPS = {
         (State.Configuring, Result_Code.SUCCESS)     : State.INACTIVE,
         (State.Configuring, Result_Code.FAILURE)     : State.UNCONFIGURED,
-        
+
         (State.CleaningUp, Result_Code.SUCCESS)      : State.UNCONFIGURED, # must not fail
 
         (State.Activating, Result_Code.SUCCESS)      : State.ACTIVE,
@@ -65,21 +66,21 @@ class LifecycleModel(object):
         (State.ErrorProcessing, Result_Code.SUCCESS) : State.UNCONFIGURED,
         (State.ErrorProcessing, Result_Code.FAILURE) : State.FINALIZED
         }
-    
+
     '''For defining callback functions'''
     STATE_TRANSITION_VALIDPAIRS = {
         Transition.CONFIGURE   : [(State.UNCONFIGURED,  Transition.CONFIGURE    )],
         Transition.ACTIVATE    : [(State.INACTIVE,      Transition.ACTIVATE     )],
         Transition.DEACTIVATE  : [(State.ACTIVE,        Transition.DEACTIVATE   )],
-        Transition.SHUTDOWN    : [(State.ACTIVE,        Transition.SHUTDOWN     ), 
+        Transition.SHUTDOWN    : [(State.ACTIVE,        Transition.SHUTDOWN     ),
                                   (State.INACTIVE,      Transition.SHUTDOWN     ),
                                   (State.UNCONFIGURED,  Transition.SHUTDOWN     )],
         Transition.CLEANUP     : [(State.INACTIVE,      Transition.CLEANUP      )],
         Transition.ERROR       : [(State.ACTIVE,        Transition.ERROR        ),
                                   (State.INACTIVE,      Transition.ERROR        )]
         }
-    
-    KNOWN_EVENTS = (LifecycleGoal.EV_SHUTDOWN, 
+
+    KNOWN_EVENTS = (LifecycleGoal.EV_SHUTDOWN,
                     LifecycleGoal.EV_CONFIGURE,
                     LifecycleGoal.EV_CLEANUP,
                     LifecycleGoal.EV_DEACTIVATE,
@@ -87,7 +88,7 @@ class LifecycleModel(object):
                     LifecycleGoal.EV_ERROR,
                     LifecycleGoal.EV_FAILURE,
                     LifecycleGoal.EV_SUCCESS)
-    
+
     '''Sequence of events to transition into the final state from a given state'''
     EVENTS = {
         (Lifecycle.PSTATE_UNCONFIGURED, Lifecycle.PSTATE_INACTIVE): [LifecycleGoal.EV_CONFIGURE],
@@ -102,15 +103,16 @@ class LifecycleModel(object):
         (Lifecycle.PSTATE_INACTIVE, Lifecycle.PSTATE_FINALIZED):    [LifecycleGoal.EV_SHUTDOWN],
         (Lifecycle.PSTATE_UNCONFIGURED, Lifecycle.PSTATE_FINALIZED):[LifecycleGoal.EV_SHUTDOWN]
         }
-    
+
     '''A Dictionary to translate a State Number to equivalent String. To be used for debugging output'''
     STATE_TO_STR = {
+        None    : 'NONE',
         # primary states
         State.UNCONFIGURED    : 'UNCONFIGURED',
         State.INACTIVE        : 'INACTIVE',
         State.ACTIVE          : 'ACTIVE',
         State.FINALIZED       : 'FINALIZED',
-        # transition states     
+        # transition states
         State.ErrorProcessing : 'ErrorProcessing',
         State.CleaningUp      : 'CleaningUp',
         State.Configuring     : 'Configuring',
@@ -128,8 +130,10 @@ class LifecycleModel(object):
         Result_Code.SUCCESS            : 'SUCCESS',
         Result_Code.FAILURE            : 'FAILURE'
         }
-        
+
     '''A Dictionary to translate a String to equivalent State Number. To be used for friendly input of parameters'''
+
+    # TODO(lucasw) use upper or lower to handle all cases
     STR_TO_STATE = {
         # primary states
         'UNCONFIGURED'      : State.UNCONFIGURED,

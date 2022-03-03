@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(lifecycle_msgs)
 
 ## Find catkin macros and libraries
@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
         message_generation
         actionlib_msgs
         geometry_msgs
+        std_msgs
         )
 
 

@@ -23,7 +23,7 @@ from actionlib.action_client import CommState
 from actionlib_msgs.msg import GoalStatus
 
 from lifecycle_msgs.msg import LifecycleGoal, LifecycleAction, Lifecycle
-from lifecycle.lifecycle_model import LifecycleModel
+from lifecycle.lifecycle_model import LifecycleModel, State
 
 LIFECYCLE_ACTION_NAME = "lifecycle"
 LIFECYCLE_STATE_TOPIC = "lifecycle_state"
@@ -144,11 +144,11 @@ class LifecycleClient(object):
             component_fqn = ""
         action_path = component_fqn + LIFECYCLE_ACTION_NAME
         state_path = component_fqn + LIFECYCLE_STATE_TOPIC
-        rospy.loginfo("{} {} {}".format(rospy.get_namespace(), action_path, state_path))
+        rospy.logdebug("Creating lifecycle client {} {} {}".format(rospy.get_namespace(), action_path, state_path))
 
         action_client = actionlib.action_client.ActionClient(action_path, LifecycleAction)
         rv = action_client.wait_for_server(timeout=rospy.Duration(1.0))
-        rospy.loginfo("Connected to action client {}".format(rv))
+        rospy.logdebug("Connected to action client {}".format(rv))
         lc_client = LifecycleClient(action_client)
 
         rospy.Subscriber(state_path, Lifecycle, lc_client.state_cb)
@@ -227,3 +227,24 @@ class LifecycleClient(object):
     def _transition_completion_cb(self, result):
         self._handle = None
         self.completion_cb_(result)
+
+    def configure(self):
+        self.go_to_state(State.CONFIGURED)
+
+    def activate(self):
+        self.go_to_state(State.ACTIVE)
+
+    def deactivate(self):
+        self.go_to_state(State.INACTIVE)
+
+    def cleanup(self):
+        self.go_to_state(State.INACTIVE)
+
+    def shutdown(self):
+        self.go_to_state(State.UNCONFIGURED)
+
+    def get_state(self):
+        return self._lm.get_current_state()
+
+    def get_state_str(self):
+        return LifecycleModel.STATE_TO_STR[self.get_state()]

@@ -68,7 +68,9 @@ class ManagedNode(object):
     # the above are overloaded with the actual state changing code,
     # below just changes state appropriately
     def handle_exception(self, ex):
-        self._lm.raise_error(ex)
+        current_state = self._lm.get_current_state()
+        if current_state != State.ErrorProcessing and current_state != State.UNCONFIGURED:
+            self._lm.raise_error(ex)
 
     def configure(self):
         if self._lm.get_current_state() == State.UNCONFIGURED:

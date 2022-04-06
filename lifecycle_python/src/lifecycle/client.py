@@ -220,8 +220,8 @@ class LifecycleClient(object):
         :type msg: Lifecycle
         :return:
         """
-        if self._server_state is None:
-            rospy.loginfo("first state {}".format(msg.end_state))
+        # if self._server_state is None:
+        #     rospy.loginfo("first state {}".format(msg.end_state))
         self._server_state = msg.end_state
 
     def _transition_completion_cb(self, result):

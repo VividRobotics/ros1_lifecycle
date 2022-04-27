@@ -193,13 +193,11 @@ bool LifecycleManager::handleTransition(const Transition& transition) {
             handleSecondaryStep(make_pair(current_, FAILURE));
         }
     }
-
     if(result) {
         publishTransition(transition, SUCCESS);
     } else {
         publishTransition(transition, FAILURE);
     }
-
     return result;
 }
 
@@ -208,6 +206,7 @@ bool LifecycleManager::handlePrimaryStep(const PrimaryInput& input) {
     CallbackMap::iterator cb_iter = callbacks_.find(input);
     if(primary_steps_iter != primary_steps_.end()) {
         current_ = primary_steps_iter->second;
+        onStateChange_();
         if(cb_iter != callbacks_.end()) {
             try {
                 return cb_iter->second();
@@ -226,6 +225,7 @@ bool LifecycleManager::handleSecondaryStep(const SecondaryInput& input) {
     SecondaryStepMap::const_iterator secondary_steps_iter = secondary_steps_.find(input);
     if(secondary_steps_iter != secondary_steps_.end()) {
         current_ = secondary_steps_iter->second;
+        onStateChange_();
         return true;
     } else {
         throw IllegalTransitionException(input);
@@ -234,6 +234,7 @@ bool LifecycleManager::handleSecondaryStep(const SecondaryInput& input) {
 
 bool LifecycleManager::handleErrorProcessing(const std::exception& ex) {
     current_ = ErrorProcessing;
+    onStateChange_();
     try {
         return onError_(ex);
     } catch(const std::exception& ex) {
@@ -243,6 +244,10 @@ bool LifecycleManager::handleErrorProcessing(const std::exception& ex) {
 
 void LifecycleManager::setErrorCb(errorCb cb) {
     onError_ = cb;
+}
+
+void LifecycleManager::setStateChangeCb(stateChangeCb cb) {
+    onStateChange_ = cb;
 }
 
 bool LifecycleManager::raiseError(const std::exception& ex) {

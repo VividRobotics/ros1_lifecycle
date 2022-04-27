@@ -33,8 +33,15 @@ namespace ros { namespace lifecycle {
             ManagedNode(const ros::NodeHandle& nh, const std::string& frame_id="map");
             void setup(const ros::NodeHandle& nh, const std::string& frame_id="map");
             virtual ~ManagedNode(){};
+
+            bool configure() { return lm_.configure(); }
+            bool activate() { return lm_.activate(); }
+            bool deactivate() { return lm_.deactivate(); }
+            bool cleanup() { return lm_.cleanup(); }
+            bool shutdown() { return lm_.shutdown(); }
         protected:
             /** Empty transition callbacks, default to return true (-> SUCCESS) */
+            virtual void onStateChange() {};
             virtual bool onConfigure() { return true; };
             virtual bool onCleanup() { return false; };
             //A node must not start directly after process creation when the life-cycle is in use
@@ -46,13 +53,7 @@ namespace ros { namespace lifecycle {
             virtual bool onError(const std::exception&) { return false; };
 
             State getCurrentState() { return lm_.getCurrentState(); }
-
-            // TODO(lucasw) anything wrong with exposing these?
-            bool configure() { return lm_.configure(); }
-            bool activate() { return lm_.activate(); }
-            bool deactivate() { return lm_.deactivate(); }
-            bool cleanup() { return lm_.cleanup(); }
-            bool shutdown() { return lm_.shutdown(); }
+            std::string getCurrentStateString() { return lm_.getCurrentStateString(); }
 
             bool raiseError(const std::exception& ex) {
             	return lm_.raiseError(ex);

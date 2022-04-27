@@ -81,6 +81,7 @@ namespace ros { namespace lifecycle {
             * manager node which handles the errors
             *************************************************************/
             void setErrorCb(errorCb);
+            void setStateChangeCb(stateChangeCb);
 
             /*************************************************************
             * Description: An api to raise error so that lifecycle managed
@@ -118,6 +119,35 @@ namespace ros { namespace lifecycle {
             *************************************************************/
             State getCurrentState() { return current_; };
 
+            /*************************************************************
+            * Description: Gets the current state of the LM node
+            *************************************************************/
+            std::string getCurrentStateString() {
+              if (current_ == UNCONFIGURED) {
+                return "UNCONFIGURED";
+              } else if (current_ == INACTIVE) {
+                return "INACTIVE";
+              } else if (current_ == ACTIVE) {
+                return "ACTIVE";
+              } else if (current_ == FINALIZED) {
+                return "FINALIZED";
+              } else if (current_ == ErrorProcessing) {
+                return "ErrorProcessing";
+              } else if (current_ == CleaningUp) {
+                return "CleaningUp";
+              } else if (current_ == Configuring) {
+                return "Configuring";
+              } else if (current_ == Activating) {
+                return "Activating";
+              } else if (current_ == Deactivating) {
+                return "Deactivating";
+              } else if (current_ == ShuttingDown) {
+                return "ShuttingDown";
+              } else {
+                return "unknown";
+              }
+            };
+
         protected:
 
             /*************************************************************
@@ -141,6 +171,7 @@ namespace ros { namespace lifecycle {
             void publishTransition(const Transition& transition, const ResultCode& result_code);
 
             errorCb onError_;
+            stateChangeCb onStateChange_;
 
             ros::NodeHandle nh_;
             typedef actionlib::SimpleActionServer<lifecycle_msgs::LifecycleAction> LifecycleActionServer;

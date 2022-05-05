@@ -233,8 +233,10 @@ bool LifecycleManager::handleSecondaryStep(const SecondaryInput& input) {
 }
 
 bool LifecycleManager::handleErrorProcessing(const std::exception& ex) {
-    current_ = ErrorProcessing;
-    onStateChange_();
+    if (current_ != ErrorProcessing) {
+        current_ = ErrorProcessing;
+        onStateChange_(); 
+    }
     try {
         return onError_(ex);
     } catch(const std::exception& ex) {
@@ -251,6 +253,10 @@ void LifecycleManager::setStateChangeCb(stateChangeCb cb) {
 }
 
 bool LifecycleManager::raiseError(const std::exception& ex) {
+    // Logging here b/c ex doesn't cascade correctly to handleErrorProcesing 
+    // via handleTransition(ERROR)
+    ROS_ERROR_STREAM("Error: " << ex.what());
+
     if(LifecycleModel::isPrimaryState(current_)) {
         activeEx_ = ex;
         return handleTransition(ERROR);

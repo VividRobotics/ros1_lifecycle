@@ -20,30 +20,31 @@
 
 // TODO(lucasw) is double namespace necessary?
 namespace ros {
-namespace lifecycle {
+  namespace lifecycle {
 
-ManagedNode::ManagedNode()
-{
-}
+    ManagedNode::ManagedNode()
+    {
+    }
 
-ManagedNode::ManagedNode(const ros::NodeHandle& nh, const std::string& frame_id)
-{
-  setup(nh, frame_id);
-}
+    ManagedNode::ManagedNode(const ros::NodeHandle& nh, const std::string& frame_id)
+    {
+      setup(nh, frame_id);
+    }
 
-void ManagedNode::setup(const ros::NodeHandle& nh, const std::string& frame_id)
-{
-  nh_ = nh;
-  lm_.setup(nh, frame_id);
-  lm_.setTransitionCallback(CONFIGURE, boost::bind(&ManagedNode::onConfigure, this));
-  lm_.setTransitionCallback(ACTIVATE, boost::bind(&ManagedNode::onActivate, this));
-  lm_.setTransitionCallback(DEACTIVATE, boost::bind(&ManagedNode::onDeactivate, this));
-  lm_.setTransitionCallback(SHUTDOWN, boost::bind(&ManagedNode::onShutdown, this));
-  lm_.setTransitionCallback(CLEANUP, boost::bind(&ManagedNode::onCleanup, this));
-  lm_.setErrorCb(boost::bind(&ManagedNode::onError, this, _1));
-  //start the action server
-  lm_.start();
-}
+    void ManagedNode::setup(const ros::NodeHandle& nh, const std::string& frame_id)
+    {
+      nh_ = nh;
+      lm_.setup(nh, frame_id);
+      lm_.setTransitionCallback(CONFIGURE, boost::bind(&ManagedNode::onConfigure, this));
+      lm_.setTransitionCallback(ACTIVATE, boost::bind(&ManagedNode::onActivate, this));
+      lm_.setTransitionCallback(DEACTIVATE, boost::bind(&ManagedNode::onDeactivate, this));
+      lm_.setTransitionCallback(SHUTDOWN, boost::bind(&ManagedNode::onShutdown, this));
+      lm_.setTransitionCallback(CLEANUP, boost::bind(&ManagedNode::onCleanup, this));
+      lm_.setErrorCb(boost::bind(&ManagedNode::onError, this, _1));
+      lm_.setStateChangeCb(boost::bind(&ManagedNode::onStateChange, this));
+      //start the action server
+      lm_.start();
+    }
 
-}  // namespace lifecycle
+  }  // namespace lifecycle
 }  // namespace ros

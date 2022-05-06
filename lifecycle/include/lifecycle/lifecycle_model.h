@@ -63,6 +63,7 @@ namespace ros { namespace lifecycle {
 
         typedef boost::function<bool (void)> transitionCb;
         typedef boost::function<bool (const std::exception&)> errorCb;
+        typedef boost::function<void ()> stateChangeCb;
         typedef boost::function<void (bool)> completionCb;
         typedef std::pair<State, Transition> PrimaryInput;
         typedef std::pair<State, ResultCode> SecondaryInput;

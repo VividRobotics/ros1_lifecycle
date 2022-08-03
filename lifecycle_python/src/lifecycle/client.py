@@ -244,7 +244,7 @@ class LifecycleClient(object):
         self.go_to_state(State.UNCONFIGURED)
 
     def get_state(self):
-        return self._lm.get_current_state()
+        return self._server_state
 
     def get_state_str(self):
         return LifecycleModel.STATE_TO_STR[self.get_state()]
